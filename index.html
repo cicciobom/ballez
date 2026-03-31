@@ -327,13 +327,13 @@
     <script>
         // --- CONFIGURAZIONE E BIOMI ---
         const BIOMES = [
-            { name: "Città Sospesa", emoji: "🏙️", bg: 0x87CEEB, grid: '#00d2d3', plat: 0xffffff, obs: 0xff0000 },
-            { name: "Tramonto Rosso", emoji: "🌇", bg: 0xff6b6b, grid: '#ff9ff3', plat: 0xffeaa7, obs: 0x2d3436 },
-            { name: "Spazio Profondo", emoji: "🌌", bg: 0x0a0a2a, grid: '#9b59b6', plat: 0x8e44ad, obs: 0xf1c40f },
-            { name: "Foresta Tossica", emoji: "☣️", bg: 0x2d3436, grid: '#badc58', plat: 0x6ab04c, obs: 0xeb4d4b },
-            { name: "Abisso Glaciale", emoji: "❄️", bg: 0x487eb0, grid: '#00a8ff', plat: 0x00a8ff, obs: 0xfff200 },
-            { name: "Inferno di Lava", emoji: "🌋", bg: 0xb33939, grid: '#ff5252', plat: 0xff793f, obs: 0x2c2c54 },
-            { name: "Olimpo Dorato", emoji: "🏛️", bg: 0xf1c40f, grid: '#fff200', plat: 0xffffff, obs: 0x34495e }
+            { name: "Città Sospesa", emoji: "🏙️", bg: 0x87CEEB, grid: '#00d2d3', plat: 0xffffff },
+            { name: "Tramonto Rosso", emoji: "🌇", bg: 0xff6b6b, grid: '#ff9ff3', plat: 0xffeaa7 },
+            { name: "Spazio Profondo", emoji: "🌌", bg: 0x0a0a2a, grid: '#9b59b6', plat: 0x8e44ad },
+            { name: "Foresta Tossica", emoji: "☣️", bg: 0x2d3436, grid: '#badc58', plat: 0x6ab04c },
+            { name: "Abisso Glaciale", emoji: "❄️", bg: 0x487eb0, grid: '#00a8ff', plat: 0x00a8ff },
+            { name: "Inferno di Lava", emoji: "🌋", bg: 0xb33939, grid: '#ff5252', plat: 0xff793f },
+            { name: "Olimpo Dorato", emoji: "🏛️", bg: 0xf1c40f, grid: '#fff200', plat: 0xffffff }
         ];
 
         let scene, camera, renderer, world;
@@ -358,44 +358,38 @@
         const MIN_ELEVATION = 0.05, MAX_ELEVATION = Math.PI / 2.1, MIN_RADIUS = 3, MAX_RADIUS = 25;
 
         const BALL_RADIUS = 0.8; 
-        const MOVE_FORCE = 45;   // Velocità fortemente incrementata
-        const MAX_SPEED = 20;    // Tetto massimo per non scivolare via all'infinito
+        const MOVE_FORCE = 45;   
+        const MAX_SPEED = 20;    
         const JUMP_FORCE = 18; 
 
-        // --- TEXTURE PROCEDURALI ---
+        // --- VARIABILI PER LA FLUIDITÀ DEL SALTO ---
+        let wasTouchingGround = true;
+        let fallSource = 'ground'; 
+        let jumpBufferTime = 0; // Memorizza l'input del salto
+        let coyoteTime = 0;     // Dà tempo extra per saltare dopo esser caduti dal bordo
+        const JUMP_BUFFER_MAX = 0.15; // 150ms di buffer input
+        const COYOTE_TIME_MAX = 0.15; // 150ms di tempo extra sul bordo
 
+        // --- TEXTURE PROCEDURALI ---
         function createGridTexture(neonColor) {
             const canvas = document.createElement('canvas');
             canvas.width = 1024; canvas.height = 1024;
             const ctx = canvas.getContext('2d');
             
-            // Sfondo con gradiente radiale scuro per dare profondità
             const grd = ctx.createRadialGradient(512, 512, 0, 512, 512, 700);
-            grd.addColorStop(0, '#2d3436');
-            grd.addColorStop(1, '#1e272e');
-            ctx.fillStyle = grd;
-            ctx.fillRect(0, 0, 1024, 1024);
+            grd.addColorStop(0, '#2d3436'); grd.addColorStop(1, '#1e272e');
+            ctx.fillStyle = grd; ctx.fillRect(0, 0, 1024, 1024);
             
-            // Micro-griglia puntinata per extra texture
             ctx.fillStyle = 'rgba(255,255,255,0.05)';
             for(let i=0; i<1024; i+=32) {
-                for(let j=0; j<1024; j+=32) {
-                    ctx.fillRect(i, j, 2, 2);
-                }
+                for(let j=0; j<1024; j+=32) ctx.fillRect(i, j, 2, 2);
             }
 
-            // Bordo neon
-            ctx.shadowColor = neonColor;
-            ctx.shadowBlur = 15;
-            ctx.strokeStyle = neonColor;
-            ctx.lineWidth = 14;
-            ctx.strokeRect(10, 10, 1004, 1004);
-            ctx.shadowBlur = 0; 
+            ctx.shadowColor = neonColor; ctx.shadowBlur = 15;
+            ctx.strokeStyle = neonColor; ctx.lineWidth = 14;
+            ctx.strokeRect(10, 10, 1004, 1004); ctx.shadowBlur = 0; 
 
-            // Griglia centrale
-            ctx.strokeStyle = neonColor;
-            ctx.globalAlpha = 0.35;
-            ctx.lineWidth = 4;
+            ctx.strokeStyle = neonColor; ctx.globalAlpha = 0.35; ctx.lineWidth = 4;
             for(let i = 1; i < 10; i++) {
                 ctx.beginPath(); ctx.moveTo(i * 102.4, 0); ctx.lineTo(i * 102.4, 1024); ctx.stroke();
                 ctx.beginPath(); ctx.moveTo(0, i * 102.4); ctx.lineTo(1024, i * 102.4); ctx.stroke();
@@ -409,30 +403,22 @@
         }
 
         function generateBallTextures() {
-            // Palla da Spiaggia
             let cBeach = document.createElement('canvas'); cBeach.width = 512; cBeach.height = 256;
             let ctx = cBeach.getContext('2d');
             let colors = ['#e1b12c', '#f5f6fa', '#0097e6', '#f5f6fa', '#c23616', '#f5f6fa'];
-            for(let i=0; i<colors.length; i++) {
-                ctx.fillStyle = colors[i];
-                ctx.fillRect(i*(512/6), 0, 512/6, 256);
-            }
-            ctx.fillStyle = '#f5f6fa'; ctx.fillRect(0, 0, 512, 20); ctx.fillRect(0, 236, 512, 20); // Poli
+            for(let i=0; i<colors.length; i++) { ctx.fillStyle = colors[i]; ctx.fillRect(i*(512/6), 0, 512/6, 256); }
+            ctx.fillStyle = '#f5f6fa'; ctx.fillRect(0, 0, 512, 20); ctx.fillRect(0, 236, 512, 20); 
             customBallTextures['beach'] = new THREE.CanvasTexture(cBeach);
 
-            // Palla da Calcio (Pattern a Scacchi)
             let cSoccer = document.createElement('canvas'); cSoccer.width = 512; cSoccer.height = 256;
             ctx = cSoccer.getContext('2d');
             ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,512,256);
             ctx.fillStyle = '#2d3436';
             for(let i=0; i<512; i+=64) {
-                for(let j=0; j<256; j+=64) {
-                    if(((i/64) + (j/64)) % 2 === 0) ctx.fillRect(i, j, 64, 64);
-                }
+                for(let j=0; j<256; j+=64) { if(((i/64) + (j/64)) % 2 === 0) ctx.fillRect(i, j, 64, 64); }
             }
             customBallTextures['soccer'] = new THREE.CanvasTexture(cSoccer);
 
-            // Palla da Tennis
             let cTennis = document.createElement('canvas'); cTennis.width = 512; cTennis.height = 256;
             ctx = cTennis.getContext('2d');
             ctx.fillStyle = '#b8e994'; ctx.fillRect(0,0,512,256);
@@ -457,8 +443,7 @@
             
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             renderer.outputEncoding = THREE.sRGBEncoding; 
             document.body.appendChild(renderer.domElement);
 
@@ -466,12 +451,10 @@
             scene.add(ambientLight);
 
             const dirLight = new THREE.DirectionalLight(0xffffff, 1.0); 
-            dirLight.position.set(20, 100, 20); 
-            dirLight.castShadow = true;
+            dirLight.position.set(20, 100, 20); dirLight.castShadow = true;
             dirLight.shadow.camera.top = 100; dirLight.shadow.camera.bottom = -100;
             dirLight.shadow.camera.left = -100; dirLight.shadow.camera.right = 100;
-            dirLight.shadow.bias = -0.001; 
-            dirLight.shadow.mapSize.width = 4096; dirLight.shadow.mapSize.height = 4096;
+            dirLight.shadow.bias = -0.001; dirLight.shadow.mapSize.width = 4096; dirLight.shadow.mapSize.height = 4096;
             scene.add(dirLight);
 
             generateBallTextures();
@@ -482,7 +465,7 @@
             world.broadphase = new CANNON.NaiveBroadphase();
             world.solver.iterations = 10;
             world.defaultContactMaterial.friction = 1.0; 
-            world.defaultContactMaterial.restitution = 0.5; // Rimbalzo
+            world.defaultContactMaterial.restitution = 0.0; // Restituzione disabilitata
 
             const ballShape = new CANNON.Sphere(BALL_RADIUS);
             ballBody = new CANNON.Body({ mass: 1.2, shape: ballShape });
@@ -491,21 +474,15 @@
             world.addBody(ballBody);
 
             const ballGeo = new THREE.SphereGeometry(BALL_RADIUS, 64, 64);
-            const ballTexMat = new THREE.MeshPhysicalMaterial({ 
-                color: 0xff4757, roughness: 0.1, metalness: 0.2, clearcoat: 1.0, clearcoatRoughness: 0.1
-            });
+            const ballTexMat = new THREE.MeshPhysicalMaterial({ color: 0xff4757, roughness: 0.1, metalness: 0.2, clearcoat: 1.0, clearcoatRoughness: 0.1 });
             ballMesh = new THREE.Mesh(ballGeo, ballTexMat);
             ballMesh.castShadow = true; ballMesh.receiveShadow = true;
             scene.add(ballMesh);
 
-            ballBody.addEventListener("collide", function(e) {
-                if (e.body.isDeadly) die();
-            });
+            ballBody.addEventListener("collide", function(e) { if (e.body.isDeadly) die(); });
 
-            setupControls();
-            window.addEventListener('resize', onWindowResize, false);
-            generateRandomMap();
-            applyCustomization(); // Applica i default della UI
+            setupControls(); window.addEventListener('resize', onWindowResize, false);
+            generateRandomMap(); applyCustomization(); 
             animate();
         }
 
@@ -515,18 +492,14 @@
             const metal = document.getElementById('ball-metal').value;
             const bounce = document.getElementById('ball-bounce').value;
 
-            // Applica Texture o Colore
             if(type === 'default') {
-                ballMesh.material.map = null;
-                ballMesh.material.color.set(color);
+                ballMesh.material.map = null; ballMesh.material.color.set(color);
             } else {
-                ballMesh.material.map = customBallTextures[type];
-                ballMesh.material.color.set(0xffffff); // Bianco puro
+                ballMesh.material.map = customBallTextures[type]; ballMesh.material.color.set(0xffffff); 
             }
             ballMesh.material.needsUpdate = true;
-            
             ballMesh.material.metalness = parseFloat(metal);
-            world.defaultContactMaterial.restitution = parseFloat(bounce);
+            world.defaultContactMaterial.restitution = 0.0; 
         }
 
         function clearMap() {
@@ -540,14 +513,12 @@
             const poleGeo = new THREE.CylinderGeometry(0.1, 0.1, 4);
             const poleMat = new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.8, roughness: 0.2 });
             const pole = new THREE.Mesh(poleGeo, poleMat);
-            pole.position.set(x, y + 2, z); pole.castShadow = true;
-            scene.add(pole); flags.push(pole);
+            pole.position.set(x, y + 2, z); pole.castShadow = true; scene.add(pole); flags.push(pole);
 
             const clothGeo = new THREE.BoxGeometry(1.5, 1, 0.1);
             const clothMat = new THREE.MeshStandardMaterial({ color: 0xff4757, roughness: 0.9 });
             const cloth = new THREE.Mesh(clothGeo, clothMat);
-            cloth.position.set(x + 0.85, y + 3.3, z); cloth.castShadow = true;
-            scene.add(cloth); flags.push(cloth);
+            cloth.position.set(x + 0.85, y + 3.3, z); cloth.castShadow = true; scene.add(cloth); flags.push(cloth);
         }
 
         function generateRandomMap() {
@@ -563,17 +534,12 @@
                 radius = 12 + (i * 0.15) + (Math.random() * 3 - 1.5); 
                 currentY += 5.5 + (Math.random() * 2); 
 
-                let currentX = Math.cos(angle) * radius;
-                let currentZ = Math.sin(angle) * radius;
-
-                let w = 8 + (Math.random() * 3); 
-                let d = 8 + (Math.random() * 3); 
-                let h = 0.5;
+                let currentX = Math.cos(angle) * radius; let currentZ = Math.sin(angle) * radius;
+                let w = 8 + (Math.random() * 3); let d = 8 + (Math.random() * 3); let h = 0.5;
 
                 if (currentY >= nextTargetHeightForCheckpoint) {
                     currentBiomeGenIdx++;
-                    w = 20; d = 20; 
-                    let cpColor = new THREE.Color(0xf1c40f); 
+                    w = 20; d = 20; let cpColor = new THREE.Color(0xf1c40f); 
                     checkpoints.push(new CANNON.Vec3(currentX, currentY + 3, currentZ));
                     nextTargetHeightForCheckpoint += 80;
 
@@ -586,32 +552,33 @@
                 let activeGenBiomeIdx = Math.min(currentBiomeGenIdx, BIOMES.length - 1);
                 let color = new THREE.Color(BIOMES[activeGenBiomeIdx].plat);
                 color.offsetHSL(0, 0, (i % 5) * 0.02 - 0.04); 
-
                 createPlatform(currentX, currentY, currentZ, w, h, d, color, activeGenBiomeIdx);
 
-                if (i > 5 && Math.random() < 0.25) {
-                    let isMoving = Math.random() > 0.4;
-                    let moveAxis = (Math.random() > 0.5) ? 'x' : 'z';
-                    createDeadlyObstacle(currentX, currentY + 0.5, currentZ, 3, 1, 3, isMoving, moveAxis, activeGenBiomeIdx);
+                if (i > 5 && Math.random() < 0.3) {
+                    let isMoving = Math.random() > 0.4; let moveAxis = (Math.random() > 0.5) ? 'x' : 'z';
+                    let isDeadly = Math.random() > 0.4; 
+                    let obsW, obsH, obsD, obsY, obsColorHex;
+
+                    if (isDeadly) { obsW = 3; obsH = 1; obsD = 3; obsColorHex = 0xff0000; } 
+                    else { obsW = 4; obsH = 3; obsD = 4; obsColorHex = 0x111111; }
+
+                    obsY = currentY + 0.25 + (obsH / 2);
+                    createObstacle(currentX, obsY, currentZ, obsW, obsH, obsD, isMoving, moveAxis, isDeadly, obsColorHex);
                 }
             }
         }
 
-        function createDeadlyObstacle(x, y, z, w, h, d, isMoving, moveAxis, biomeIdx) {
+        function createObstacle(x, y, z, w, h, d, isMoving, moveAxis, isDeadly, colorHex) {
             const shape = new CANNON.Box(new CANNON.Vec3(w/2, h/2, d/2));
             const body = new CANNON.Body({ mass: 0, shape: shape });
-            body.position.set(x, y, z); body.isDeadly = true; 
-            world.addBody(body);
+            body.position.set(x, y, z); body.isDeadly = isDeadly; world.addBody(body);
 
-            let obsColor = BIOMES[biomeIdx].obs;
             const geo = new THREE.BoxGeometry(w, h, d);
             const mat = new THREE.MeshStandardMaterial({ 
-                color: obsColor, emissive: obsColor, emissiveIntensity: 0.5, roughness: 0.2, metalness: 0.5 
+                color: colorHex, emissive: colorHex, emissiveIntensity: isDeadly ? 0.5 : 0.0, roughness: 0.2, metalness: 0.5 
             });
             const mesh = new THREE.Mesh(geo, mat);
-            mesh.position.set(x, y, z); mesh.castShadow = true; mesh.receiveShadow = true;
-            scene.add(mesh);
-
+            mesh.position.set(x, y, z); mesh.castShadow = true; mesh.receiveShadow = true; scene.add(mesh);
             if (isMoving) movingObstacles.push({ body, mesh, baseX: x, baseZ: z, axis: moveAxis, timeOffset: Math.random() * 100 });
         }
 
@@ -632,6 +599,9 @@
             const spawnPos = (gameMode === 'normal') ? checkpoints[activeCheckpointIndex] : checkpoints[0];
             ballBody.position.copy(spawnPos);
             ballBody.velocity.set(0, 0, 0); ballBody.angularVelocity.set(0, 0, 0);
+            
+            wasTouchingGround = true; fallSource = 'ground';
+            jumpBufferTime = 0; coyoteTime = 0;
         }
 
         function showBiomeMessage(emoji, name, colorStr) {
@@ -639,7 +609,6 @@
             document.getElementById('biome-name').innerText = `${emoji} ${name}`;
             el.style.borderColor = colorStr; el.style.boxShadow = `0 15px 50px rgba(0,0,0,0.8), 0 0 30px ${colorStr}`;
             el.classList.add('show');
-            
             const hudEl = document.getElementById('current-biome-hud');
             hudEl.innerText = `${emoji} ${name}`; hudEl.style.color = colorStr;
             setTimeout(() => { el.classList.remove('show'); }, 4500);
@@ -662,29 +631,21 @@
                 if (key === 'e') keys.e = isDown;
             };
 
-            window.addEventListener('keydown', (e) => handleKey(e, true));
-            window.addEventListener('keyup', (e) => handleKey(e, false));
-
+            window.addEventListener('keydown', (e) => handleKey(e, true)); window.addEventListener('keyup', (e) => handleKey(e, false));
             document.body.addEventListener('click', () => {
                 if (isGameRunning && !isPaused && document.pointerLockElement !== document.body) document.body.requestPointerLock();
             });
 
             document.addEventListener('pointerlockchange', () => {
                 const crosshair = document.getElementById('crosshair');
-                if(document.getElementById('settings-screen').style.display === 'flex' || 
-                   document.getElementById('customize-screen').style.display === 'flex') return;
-
-                if (document.pointerLockElement === document.body) {
-                    crosshair.style.display = 'block'; if (isPaused) resumeGame(); 
-                } else {
-                    crosshair.style.display = 'none'; if (isGameRunning && !isPaused) pauseGame(); 
-                }
+                if(document.getElementById('settings-screen').style.display === 'flex' || document.getElementById('customize-screen').style.display === 'flex') return;
+                if (document.pointerLockElement === document.body) { crosshair.style.display = 'block'; if (isPaused) resumeGame(); 
+                } else { crosshair.style.display = 'none'; if (isGameRunning && !isPaused) pauseGame(); }
             });
 
             document.addEventListener('mousemove', (e) => {
                 if (document.pointerLockElement === document.body) {
-                    cameraAzimuth -= e.movementX * 0.004;
-                    cameraElevation += e.movementY * 0.004; 
+                    cameraAzimuth -= e.movementX * 0.004; cameraElevation += e.movementY * 0.004; 
                     cameraElevation = Math.max(MIN_ELEVATION, Math.min(MAX_ELEVATION, cameraElevation));
                 }
             });
@@ -698,11 +659,8 @@
 
         function toggleMode() {
             const btn = document.getElementById('mode-toggle-btn');
-            if (gameMode === 'normal') {
-                gameMode = 'hardcore'; btn.innerText = "MODALITÀ: HARDCORE"; btn.className = "btn-start btn-hardcore";
-            } else {
-                gameMode = 'normal'; btn.innerText = "MODALITÀ: NORMALE"; btn.className = "btn-start btn-normal";
-            }
+            if (gameMode === 'normal') { gameMode = 'hardcore'; btn.innerText = "MODALITÀ: HARDCORE"; btn.className = "btn-start btn-hardcore";
+            } else { gameMode = 'normal'; btn.innerText = "MODALITÀ: NORMALE"; btn.className = "btn-start btn-normal"; }
         }
 
         function startGame(selectedMode) {
@@ -710,15 +668,14 @@
             document.getElementById('mode-display').innerText = (gameMode === 'normal') ? "Mod: NORMALE" : "Mod: HARDCORE";
             document.getElementById('mode-display').style.color = (gameMode === 'normal') ? "#0abde3" : "#ff4757";
 
-            generateRandomMap();
-            document.body.requestPointerLock(); 
+            generateRandomMap(); document.body.requestPointerLock(); 
             document.getElementById('start-screen').style.opacity = '0';
             setTimeout(() => {
                 document.getElementById('start-screen').style.display = 'none';
                 document.getElementById('controls-panel').style.display = 'block'; 
-                isGameRunning = true; isPaused = false;
-                lastTime = performance.now();
+                isGameRunning = true; isPaused = false; lastTime = performance.now();
                 activeCheckpointIndex = 0; maxCheckpointReached = 0; 
+                wasTouchingGround = true; fallSource = 'ground'; jumpBufferTime = 0; coyoteTime = 0;
                 
                 targetBgColor.setHex(BIOMES[0].bg); currentBgColor.setHex(BIOMES[0].bg);
                 document.getElementById('current-biome-hud').innerText = `${BIOMES[0].emoji} ${BIOMES[0].name}`;
@@ -745,12 +702,10 @@
             if (keys.w) inputForce.add(forward); if (keys.s) inputForce.sub(forward);
             if (keys.a) inputForce.sub(right); if (keys.d) inputForce.add(right); 
 
-            // Movimento accelerato e limitato per massima fluidità
             if (inputForce.length() > 0) {
                 inputForce.normalize().multiplyScalar(MOVE_FORCE);
                 ballBody.applyForce(new CANNON.Vec3(inputForce.x, 0, inputForce.z), ballBody.position);
                 
-                // Limitatore di velocità orizzontale
                 let horSpeed = Math.sqrt(ballBody.velocity.x**2 + ballBody.velocity.z**2);
                 if(horSpeed > MAX_SPEED) {
                     let ratio = MAX_SPEED / horSpeed;
@@ -761,25 +716,43 @@
                 ballBody.angularVelocity.x *= 0.90; ballBody.angularVelocity.z *= 0.90;
             }
 
-            // SALTO FLUIDO CON COLLISIONI REALI
-            if (keys.space && (performance.now() - lastJumpTime > 250)) {
-                let canJump = false;
-                for(let i=0; i<world.contacts.length; i++){
-                    if(world.contacts[i].bi === ballBody || world.contacts[i].bj === ballBody){
-                        canJump = true; break;
-                    }
+            // 1. GESTIONE CONTATTO FISICO PRIMA DELLO STEP (Essenziale per la fluidità)
+            let isTouchingGround = false;
+            for(let i=0; i<world.contacts.length; i++){
+                if(world.contacts[i].bi === ballBody || world.contacts[i].bj === ballBody){
+                    isTouchingGround = true; break;
                 }
-                
-                if(canJump) {
-                    ballBody.velocity.y = JUMP_FORCE;
-                    lastJumpTime = performance.now();
-                    keys.space = false; 
-                }
+            }
+
+            // 2. AGGIORNAMENTO TEMPISTICA (COYOTE TIME & JUMP BUFFER)
+            if (isTouchingGround) {
+                coyoteTime = COYOTE_TIME_MAX;
+            } else {
+                coyoteTime -= dt;
+            }
+
+            if (keys.space) {
+                jumpBufferTime = JUMP_BUFFER_MAX;
+                keys.space = false; // Consuma il tasto premuto
+            } else {
+                jumpBufferTime -= dt;
+            }
+
+            let preStepVelocityY = ballBody.velocity.y;
+
+            // 3. SALTO ULTRA FLUIDO
+            if (jumpBufferTime > 0 && coyoteTime > 0 && (performance.now() - lastJumpTime > 250)) {
+                ballBody.velocity.y = JUMP_FORCE;
+                lastJumpTime = performance.now();
+                jumpBufferTime = 0; // Consuma il buffer
+                coyoteTime = 0;     // Evita doppi salti
+                fallSource = 'jump';
+                wasTouchingGround = false;
+                isTouchingGround = false; // Forza il distacco visivo
             }
 
             if (keys.e && gameMode === 'normal') { die(); keys.e = false; }
 
-            // GESTIONE CHECKPOINT
             let detectedBiomeIndex = 0;
             for(let i = checkpoints.length - 1; i >= 0; i--) {
                 if(ballBody.position.y >= checkpoints[i].y - 2) { detectedBiomeIndex = i; break; }
@@ -809,7 +782,39 @@
                 obs.mesh.position.copy(obs.body.position);
             });
 
+            // 4. ESECUZIONE STEP FISICO
             world.step(1/60, dt);
+
+            // Ricalcola contatto dopo lo step per atterraggi e rimbalzi
+            isTouchingGround = false;
+            for(let i=0; i<world.contacts.length; i++){
+                if(world.contacts[i].bi === ballBody || world.contacts[i].bj === ballBody){
+                    isTouchingGround = true; break;
+                }
+            }
+
+            // 5. GESTIONE ATTERRAGGIO E RIMBALZO SINGOLO MANUALE
+            if (wasTouchingGround && !isTouchingGround && fallSource === 'ground') {
+                if (ballBody.velocity.y <= 0) fallSource = 'ledge';
+            }
+
+            if (!wasTouchingGround && isTouchingGround) {
+                if (fallSource === 'jump' || fallSource === 'ledge') {
+                    let bounceVal = parseFloat(document.getElementById('ball-bounce').value);
+                    if (bounceVal > 0 && preStepVelocityY < -3) {
+                        ballBody.velocity.y = Math.abs(preStepVelocityY) * bounceVal * 0.9;
+                        fallSource = 'bounce';
+                        isTouchingGround = false; 
+                    } else {
+                        fallSource = 'ground';
+                    }
+                } else if (fallSource === 'bounce') {
+                    fallSource = 'ground';
+                }
+            }
+
+            wasTouchingGround = isTouchingGround;
+
             ballMesh.position.copy(ballBody.position);
             ballMesh.quaternion.copy(ballBody.quaternion);
 
@@ -824,7 +829,8 @@
             const camY = targetPos.y + cameraRadius * Math.sin(cameraElevation);
             const camZ = targetPos.z + cameraRadius * Math.cos(cameraElevation) * Math.cos(cameraAzimuth);
 
-            camera.position.lerp(new THREE.Vector3(camX, camY, camZ), 0.2);
+            // Interpolazione più morbida per una sensazione di fluidità maggiore durante i salti
+            camera.position.lerp(new THREE.Vector3(camX, camY, camZ), 0.15);
             camera.lookAt(lookAtPos);
         }
 
