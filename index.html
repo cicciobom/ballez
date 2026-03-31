@@ -79,6 +79,13 @@
             display: flex; flex-direction: column; align-items: flex-end;
         }
 
+        /* --- NUOVO: Record HUD --- */
+        .record-display {
+            font-size: 12px; color: #f1c40f; text-transform: uppercase; 
+            letter-spacing: 1px; margin-top: 5px; font-weight: 900;
+            text-shadow: 0 0 8px rgba(241, 196, 15, 0.6);
+        }
+
         /* Bioma Popup */
         #biome-display {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8);
@@ -123,26 +130,27 @@
         }
 
         #pause-screen { display: none; background: rgba(0, 0, 0, 0.8); }
-        #credits-screen { display: none; background: rgba(10, 10, 26, 0.95); z-index: 250; }
+        
+        /* --- MIGLIORATI: Titoli di Coda a Schermo Intero --- */
+        #credits-screen { display: none; background: #000; z-index: 250; }
+        
+        .credits-roll {
+            height: 100vh; width: 100vw; overflow: hidden; position: relative;
+            border: none; margin: 0; background: radial-gradient(circle at center, #111 0%, #000 100%);
+        }
+        
+        .credits-content {
+            position: absolute; width: 100%; text-align: center; color: #7bed9f; font-size: 28px; line-height: 2.0;
+            animation: scrollCredits 25s linear forwards; text-shadow: 0 0 15px rgba(123, 237, 159, 0.5);
+        }
+        @keyframes scrollCredits { 0% { top: 100%; opacity: 0; } 5% { opacity: 1; } 95% { opacity: 1; } 100% { top: -200%; opacity: 0; } }
+        .credits-content strong { color: #f1c40f; font-size: 45px; display: block; margin-top: 60px; margin-bottom: 15px; letter-spacing: 5px; }
 
         @keyframes float-logo { 0%, 100% { transform: translateY(0) rotate(-5deg); } 50% { transform: translateY(-20px) rotate(5deg); } }
         .game-logo { font-size: 80px; line-height: 1; margin-bottom: 10px; animation: float-logo 4s ease-in-out infinite; filter: drop-shadow(0 10px 20px rgba(0, 210, 211, 0.6)); }
 
         h1 { font-size: 50px; margin-bottom: 10px; color: #ffffff; text-shadow: 0 0 20px rgba(0, 210, 211, 0.8); letter-spacing: 3px; text-align: center; }
         p.subtitle { font-size: 16px; margin-bottom: 30px; color: #dfe4ea; text-align: center;}
-
-        /* Animazione Titoli di Coda */
-        .credits-roll {
-            height: 200px; width: 80vw; max-width: 600px; overflow: hidden; position: relative;
-            margin-bottom: 20px; border-top: 1px solid rgba(255,255,255,0.2); border-bottom: 1px solid rgba(255,255,255,0.2);
-        }
-        
-        .credits-content {
-            position: absolute; width: 100%; text-align: center; color: #7bed9f; font-size: 18px; line-height: 1.8;
-            animation: scrollCredits 12s linear forwards;
-        }
-        @keyframes scrollCredits { 0% { top: 100%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: -150%; opacity: 0; } }
-        .credits-content strong { color: white; font-size: 22px; display: block; margin-top: 20px; }
 
         .menu-buttons { display: flex; gap: 15px; margin-bottom: 20px; align-items: center; flex-wrap: wrap; justify-content: center; }
 
@@ -167,6 +175,13 @@
         .modal-screen h2 { margin-top: 0; color: #7bed9f; margin-bottom: 20px; }
         .modal-screen label { display: flex; justify-content: space-between; width: 100%; margin-bottom: 15px; font-size: 16px; align-items: center; }
         .modal-screen select { padding: 5px; border-radius: 8px; background: #2f3542; color: white; font-size: 14px; width: 130px;}
+
+        /* --- NUOVO: Dev/Cheat Menu --- */
+        #cheat-menu {
+            border-color: #ff4757; 
+            box-shadow: 0 0 40px rgba(255, 71, 87, 0.4);
+        }
+        #cheat-menu h2 { color: #ff4757; text-shadow: 0 0 10px rgba(255, 71, 87, 0.5); }
 
         /* Comandi PC (Nascosti su Mobile) - GRAFICA MIGLIORATA E CENTRATA */
         #controls-panel {
@@ -261,6 +276,8 @@
             <div class="biome-hud-box">
                 <div>Bioma: <span id="current-biome-hud" style="color:#00d2d3;">🏙️ Città Sospesa</span></div>
                 <div id="mode-display" style="font-size: 14px; margin-top: 4px;"></div>
+                <!-- NUOVO: Record in gioco -->
+                <div class="record-display">Record: <span id="hud-best-val">0</span>m</div>
             </div>
         </div>
         
@@ -295,6 +312,11 @@
             <div class="game-logo">⚽</div>
             <h1>ONLY BALL UP</h1>
             <p class="subtitle">Scegli la tua sfida e raggiungi i 1000 metri per vincere!</p>
+            
+            <!-- NUOVO: Record nel Menu -->
+            <div style="color: #f1c40f; font-size: 24px; font-weight: 900; margin-bottom: 25px; text-shadow: 0 0 15px rgba(241, 196, 15, 0.8);">
+                🏆 RECORD ASSOLUTO: <span id="menu-best-val">0</span>m
+            </div>
             
             <div class="menu-buttons">
                 <button id="mode-toggle-btn" class="btn-start btn-normal" onclick="toggleMode()">MODALITÀ: NORMALE</button>
@@ -340,6 +362,24 @@
             <label>Colore Base: <input type="color" id="ball-color" value="#ffffff" onchange="applyCustomization()"></label>
             <label>Metallo: <input type="range" id="ball-metal" min="0" max="1" step="0.1" value="0.3" onchange="applyCustomization()"></label>
             <button class="btn-start btn-normal" style="margin-top: 10px;" onclick="closeModals()">Chiudi</button>
+        </div>
+
+        <!-- NUOVO: Menu Cheat Nascosto -->
+        <div id="cheat-menu" class="modal-screen">
+            <h2>🛠️ DEV MENU</h2>
+            <button id="btn-fly" class="btn-start btn-normal" style="width: 100%; margin-bottom: 12px; background: linear-gradient(45deg, #0abde3, #10ac84);" onclick="toggleFlyMode()">🚀 FLY MODE: OFF</button>
+            <button id="btn-grav" class="btn-start btn-hardcore" style="width: 100%; margin-bottom: 15px;" onclick="toggleGravity()">☄️ GRAVITÀ: NORMALE</button>
+            
+            <label style="color: #c8d6e5; border-top: 1px solid #576574; padding-top: 15px;">Teletrasporto: 
+                <select id="cheat-biome-select">
+                    <!-- Popolato dinamicamente -->
+                </select>
+            </label>
+            <button class="btn-start btn-customize" style="width: 100%; margin-bottom: 20px;" onclick="cheatTeleport()">✨ VAI AL CHECKPOINT!</button>
+            
+            <button class="btn-start btn-play" style="width: 100%; margin-bottom: 15px; background: linear-gradient(45deg, #f1c40f, #e67e22);" onclick="cheatWin()">🏆 INSTA-WIN</button>
+            
+            <button class="btn-start btn-normal" style="margin-top: 5px; width: 100%; background: #576574; color: white;" onclick="toggleCheatMenu()">CHIUDI</button>
         </div>
     </div>
 
@@ -425,8 +465,9 @@
 
         let scene, camera, renderer, world;
         let ballBody, ballMesh, ballLight; 
-        let platforms = [], movingObstacles = [], flags = [], decorations = [];
-        let keys = { w: false, a: false, s: false, d: false, space: false, e: false };
+        let platforms = [], movingObstacles = [], movingPlatforms = [], flags = [], decorations = [];
+        
+        let keys = { w: false, a: false, s: false, d: false, space: false, e: false, shift: false };
         let isGameRunning = false, isPaused = false, hasWon = false;
         let lastTime = performance.now();
         let lastJumpTime = 0;
@@ -436,6 +477,10 @@
         let activeCheckpointIndex = 0;
         let maxCheckpointReached = 0; 
         const WIN_HEIGHT = 1000;
+
+        let bestHeight = localStorage.getItem('onlyBallUpBest') || 0;
+        let flyMode = false;
+        let highGravity = false;
 
         let pendingDeath = false; let deathReason = '';
         let particles, particleGeo, particleMat; const PARTICLE_COUNT = 1500;
@@ -477,14 +522,12 @@
         }
 
         function generateBallTextures() {
-            // Pallone da Spiaggia
             let cBeach = document.createElement('canvas'); cBeach.width = 512; cBeach.height = 256; let ctx = cBeach.getContext('2d');
             let colors = ['#e1b12c', '#f5f6fa', '#0097e6', '#f5f6fa', '#c23616', '#f5f6fa'];
             for(let i=0; i<colors.length; i++) { ctx.fillStyle = colors[i]; ctx.fillRect(i*(512/6), 0, 512/6, 256); }
             ctx.fillStyle = '#f5f6fa'; ctx.fillRect(0, 0, 512, 20); ctx.fillRect(0, 236, 512, 20); 
             customBallTextures['beach'] = new THREE.CanvasTexture(cBeach);
 
-            // NUOVA TEXTURE PALLONE DA CALCIO (Pattern a Nido d'Ape Regolare)
             let cSoccer = document.createElement('canvas'); cSoccer.width = 512; cSoccer.height = 256; ctx = cSoccer.getContext('2d');
             let baseGrd = ctx.createLinearGradient(0,0,0,256);
             baseGrd.addColorStop(0, '#ffffff'); baseGrd.addColorStop(1, '#dcdde1');
@@ -505,7 +548,6 @@
                 for(let x = -50; x <= 600; x += radius * 3) {
                     let ox = (row % 2 === 0) ? 0 : radius * 1.5;
                     count++;
-                    // Dispone gli esagoni neri in modo che formino il classico pattern
                     let isBlack = (count % 4 === 0);
                     let color = '#f5f6fa';
                     if(isBlack) {
@@ -518,7 +560,6 @@
             }
             customBallTextures['soccer'] = new THREE.CanvasTexture(cSoccer);
 
-            // Pallina da Tennis
             let cTennis = document.createElement('canvas'); cTennis.width = 512; cTennis.height = 256; ctx = cTennis.getContext('2d');
             ctx.fillStyle = '#b8e994'; ctx.fillRect(0,0,512,256); ctx.strokeStyle = '#f5f6fa'; ctx.lineWidth = 14; ctx.lineCap = 'round';
             ctx.beginPath(); for(let x=0; x<=512; x++) { let y = 128 + Math.sin(x * Math.PI * 2 / 256) * 80; if(x===0) ctx.moveTo(x, y); else ctx.lineTo(x, y); } ctx.stroke();
@@ -570,10 +611,12 @@
                 if (e.body.isDeadly) { 
                     pendingDeath = true; deathReason = 'block'; 
                 } else if (e.body.isBouncy) {
-                    // Piattaforma rimbalzante! Applica una spinta verso l'alto (Forza bilanciata a 1.8)
                     ballBody.velocity.y = JUMP_FORCE * 1.8;
                 }
             });
+
+            document.getElementById('menu-best-val').innerText = Math.floor(bestHeight);
+            document.getElementById('hud-best-val').innerText = Math.floor(bestHeight);
 
             setupControls(); window.addEventListener('resize', onWindowResize, false);
             generateRandomMap(); applyCustomization(); animate();
@@ -588,7 +631,6 @@
                 ballMesh.material.map = null; ballMesh.material.color.set(color); 
             } else { 
                 ballMesh.material.map = customBallTextures[type]; ballMesh.material.color.set(0xffffff); 
-                // Se è pallone da calcio diamo una texture un po' più ruvida (effetto pelle)
                 if(type === 'soccer') ballMesh.material.roughness = 0.4;
             }
             ballMesh.material.needsUpdate = true; ballMesh.material.metalness = parseFloat(metal);
@@ -598,6 +640,7 @@
         function clearMap() {
             platforms.forEach(p => { world.removeBody(p.body); scene.remove(p.mesh); });
             movingObstacles.forEach(o => { world.removeBody(o.body); scene.remove(o.mesh); });
+            movingPlatforms = [];
             flags.forEach(f => { scene.remove(f); }); decorations.forEach(d => { scene.remove(d); });
             platforms = []; movingObstacles = []; flags = []; checkpoints = []; decorations = [];
         }
@@ -609,20 +652,12 @@
             cloth.position.set(x + 0.85, y + 3.3, z); cloth.castShadow = true; scene.add(cloth); flags.push(cloth);
         }
 
-        // DECORAZIONI: VISIBILI SOLO SU DESKTOP E MOLTO PIÙ CURATE E SISTEMATE
         function createBiomeDecorations(x, y, z, w, d, biomeIdx) {
-            // Se siamo su smartphone/tablet, non generare i prop per lasciare la visuale libera
             if (isMobile) return;
-
-            // Margine proporzionale per mantenere i prop elegantemente agli angoli
             const insetX = Math.max(2.5, w * 0.15); 
             const insetZ = Math.max(2.5, d * 0.15); 
-            
-            // Assicuriamoci che la piattaforma sia abbastanza grande
             if (w < insetX * 3 || d < insetZ * 3) return; 
 
-            // Disposizione simmetrica ed elegante:
-            // 4 prop per le piattaforme enormi (checkpoint), 2 prop diagonali per quelle più piccole
             let corners = [];
             if (w > 20) {
                 corners = [
@@ -643,43 +678,42 @@
                 let py = y + 0.25; 
                 let decorGroup = new THREE.Group(); decorGroup.position.set(px, py, pz);
                 
-                // Modelli 3D Migliorati
                 switch(biomeIdx) {
-                    case 0: // City: Lampione cittadino alto
+                    case 0:
                         let pole = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.15, 3), new THREE.MeshStandardMaterial({color: 0x444444, metalness: 0.9})); pole.position.y = 1.5;
                         let lampBase = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.2), new THREE.MeshStandardMaterial({color: 0x222222})); lampBase.position.y = 0.1;
                         let lamp = new THREE.Mesh(new THREE.SphereGeometry(0.4), new THREE.MeshStandardMaterial({color: 0x00d2d3, emissive: 0x00d2d3, emissiveIntensity: 1})); lamp.position.y = 3.0;
                         decorGroup.add(lampBase, pole, lamp); break;
-                    case 1: // Sunset: Albero folto a due strati
+                    case 1:
                         let trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.4, 1.2), new THREE.MeshStandardMaterial({color: 0x5c4033, roughness: 1.0})); trunk.position.y = 0.6;
                         let lMat = new THREE.MeshStandardMaterial({color: 0xe67e22, roughness: 0.9});
                         let leaves1 = new THREE.Mesh(new THREE.ConeGeometry(1.5, 2.0, 5), lMat); leaves1.position.y = 1.8;
                         let leaves2 = new THREE.Mesh(new THREE.ConeGeometry(1.2, 1.5, 5), lMat); leaves2.position.y = 2.8;
                         decorGroup.add(trunk, leaves1, leaves2); break;
-                    case 2: // Space: Cristalli trasparenti fluttuanti
+                    case 2:
                         let cMat = new THREE.MeshStandardMaterial({color: 0x9b59b6, emissive: 0x4b2976, metalness: 0.7, roughness: 0.1, transparent: true, opacity: 0.9});
                         let c1 = new THREE.Mesh(new THREE.OctahedronGeometry(0.6, 0), cMat); c1.position.y = 1.5; c1.scale.set(1, 2.5, 1);
                         let c2 = new THREE.Mesh(new THREE.OctahedronGeometry(0.3, 0), cMat); c2.position.set(0.8, 1.0, 0.4); c2.rotation.z = -0.5; c2.scale.set(1, 2, 1);
                         decorGroup.add(c1, c2); break;
-                    case 3: // Toxic: Fusti tossici con bolle
+                    case 3:
                         let barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 1.4, 16), new THREE.MeshStandardMaterial({color: 0x2d3436, metalness: 0.8})); barrel.position.y = 0.7;
                         let acidBase = new THREE.Mesh(new THREE.CylinderGeometry(0.48, 0.48, 1.42, 16), new THREE.MeshStandardMaterial({color: 0xbadc58, emissive: 0xbadc58, emissiveIntensity: 0.6})); acidBase.position.y = 0.7;
                         let bubble = new THREE.Mesh(new THREE.SphereGeometry(0.2), new THREE.MeshStandardMaterial({color: 0xbadc58, emissive: 0xbadc58})); bubble.position.set(0, 1.5, 0);
                         decorGroup.add(barrel, acidBase, bubble); break;
-                    case 4: // Ice: Pupazzo di neve a 3 strati
+                    case 4:
                         let sMat = new THREE.MeshStandardMaterial({color: 0xffffff, roughness: 0.8});
                         let baseS = new THREE.Mesh(new THREE.SphereGeometry(0.7), sMat); baseS.position.y = 0.7;
                         let midS = new THREE.Mesh(new THREE.SphereGeometry(0.5), sMat); midS.position.y = 1.6;
                         let headS = new THREE.Mesh(new THREE.SphereGeometry(0.35), sMat); headS.position.y = 2.3;
                         let nose = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.4), new THREE.MeshStandardMaterial({color: 0xe17055})); nose.position.set(0, 2.3, 0.35); nose.rotation.x = Math.PI / 2;
                         decorGroup.add(baseS, midS, headS, nose); break;
-                    case 5: // Lava: Rocce incandescenti appuntite
+                    case 5:
                         let rockMat = new THREE.MeshStandardMaterial({color: 0x111111, roughness: 0.9, flatShading: true});
                         let rock1 = new THREE.Mesh(new THREE.DodecahedronGeometry(1.0, 0), rockMat); rock1.position.y = 0.8; rock1.scale.set(1, 1.5, 1);
                         let rock2 = new THREE.Mesh(new THREE.DodecahedronGeometry(0.6, 0), rockMat); rock2.position.set(0.8, 0.5, 0.5);
                         let lavaVein = new THREE.Mesh(new THREE.DodecahedronGeometry(0.98, 0), new THREE.MeshStandardMaterial({color: 0xff4757, emissive: 0xff4757, wireframe: true})); lavaVein.position.y = 0.8; lavaVein.scale.set(1, 1.5, 1);
                         decorGroup.add(rock1, rock2, lavaVein); break;
-                    case 6: // Olympus: Colonna sacra
+                    case 6:
                         let gMat = new THREE.MeshStandardMaterial({color: 0xf1c40f, metalness: 0.6, roughness: 0.2});
                         let pBase = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.3, 1.2), gMat); pBase.position.y = 0.15;
                         let pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 2.5, 12), gMat); pillar.position.y = 1.55;
@@ -700,38 +734,33 @@
 
             let currentY = 2, angle = 0, radius = 10, nextTargetHeightForCheckpoint = 110, currentBiomeGenIdx = 0;
             let currentX = 0, currentZ = 0;
-            let lastWasBouncy = false; // Variabile per impedire due piattaforme rimbalzanti consecutive
+            let lastWasBouncy = false; 
+            let lastWasSmall = false;  
 
             for (let i = 1; i <= 300; i++) {
                 let diffFactor = Math.min(1, i / 200); 
 
-                angle += 0.4 + (Math.random() * 0.4); 
+                angle += 0.55 + (Math.random() * 0.5); 
                 radius = 12 + (i * 0.15) + (Math.random() * 3 - 1.5); 
-                currentY += 5.5 + (Math.random() * 2); 
+                currentY += 6.5 + (Math.random() * 2.5); 
 
                 currentX = Math.cos(angle) * radius; currentZ = Math.sin(angle) * radius;
 
-                // VITTORIA 1000m
                 if (currentY >= WIN_HEIGHT) {
                     createPlatform(currentX, WIN_HEIGHT, currentZ, 40, 0.5, 40, new THREE.Color(0xf1c40f), 6); 
                     createFlag(currentX, WIN_HEIGHT + 0.25, currentZ); 
                     break; 
                 }
 
-                // Generazione dimensioni blocco (Interi e Regolari)
                 let baseW = 10 - (diffFactor * 4);
                 let w = Math.max(4, Math.round(baseW + Math.random() * 3));
                 let d = Math.max(4, Math.round(baseW + Math.random() * 3));
                 let h = 0.5;
                 let isSmallPlatform = false;
 
-                // PIATTAFORMA CHECKPOINT ENORME (35x35)
                 if (currentY >= nextTargetHeightForCheckpoint && currentY < WIN_HEIGHT - 50) {
                     currentBiomeGenIdx++; 
-                    w = 35; d = 35; // Piattaforma ovviamente più grande!
-                    
-                    // Sposta il checkpoint in avanti rispetto alla generazione normale
-                    // per evitare che faccia da "tetto" alla piattaforma appena sotto
+                    w = 35; d = 35; 
                     currentX += Math.cos(angle) * 18;
                     currentZ += Math.sin(angle) * 18;
 
@@ -740,64 +769,88 @@
                     let bIdx = Math.min(currentBiomeGenIdx - 1, BIOMES.length - 1);
                     createPlatform(currentX, currentY, currentZ, w, h, d, new THREE.Color(0xf1c40f), bIdx);
                     createFlag(currentX + (w/2) - 3, currentY + 0.25, currentZ + (d/2) - 3);
-                    
-                    // PROPS: Generati SOLO nelle grandi piattaforme di salvataggio
                     createBiomeDecorations(currentX, currentY, currentZ, w, d, bIdx);
 
-                    lastWasBouncy = false; // Reset per il prossimo blocco
+                    lastWasBouncy = false;
+                    lastWasSmall = false; 
                     continue; 
                 }
 
-                if (i > 30 && Math.random() < (diffFactor * 0.6)) { 
+                if (i > 20 && !lastWasSmall && Math.random() < 0.3 + (diffFactor * 0.6)) { 
                     isSmallPlatform = true; 
-                    w = Math.max(3, Math.round(3 + Math.random() * 2)); 
-                    d = Math.max(3, Math.round(3 + Math.random() * 2)); 
+                    w = Math.max(2.5, Math.round(2.5 + Math.random() * 2)); 
+                    d = Math.max(2.5, Math.round(2.5 + Math.random() * 2)); 
                 }
+                lastWasSmall = isSmallPlatform; 
 
-                // Generazione Piattaforma Rimbalzante Verde
                 let isBouncy = false;
-                // Diminuito lo spawn delle piattaforme rimbalzanti dal 50% al 25%
                 if (!isSmallPlatform && i > 5 && !lastWasBouncy && Math.random() < 0.25) {
                     isBouncy = true;
                 }
-                lastWasBouncy = isBouncy; // Aggiorna lo stato per il prossimo ciclo
+                lastWasBouncy = isBouncy; 
+
+                let moveData = null;
+                if (!isBouncy && i > 10 && Math.random() < 0.25) {
+                    moveData = {
+                        axis: Math.random() > 0.5 ? 'x' : 'z',
+                        range: 4 + Math.random() * 5, 
+                        speed: 0.3 + Math.random() * 0.4, 
+                        timeOffset: Math.random() * 100
+                    };
+                }
 
                 let activeGenBiomeIdx = Math.min(currentBiomeGenIdx, BIOMES.length - 1);
                 let color = isBouncy ? new THREE.Color(0x32ff7e) : new THREE.Color(BIOMES[activeGenBiomeIdx].plat); 
-                if (!isBouncy) color.offsetHSL(0, 0, (i % 5) * 0.02 - 0.04); 
+                if (!isBouncy && !moveData) color.offsetHSL(0, 0, (i % 5) * 0.02 - 0.04); 
                 
-                createPlatform(currentX, currentY, currentZ, w, h, d, color, activeGenBiomeIdx, isBouncy);
+                createPlatform(currentX, currentY, currentZ, w, h, d, color, activeGenBiomeIdx, isBouncy, moveData);
 
-                // Aggiungiamo i prop anche sulle piattaforme rimbalzanti
                 if (isBouncy) {
                     createBiomeDecorations(currentX, currentY, currentZ, w, d, activeGenBiomeIdx);
                 }
 
                 let hasObstacle = false;
-                if (!isBouncy && !isSmallPlatform && i > 5 && Math.random() < 0.35 + (diffFactor * 0.2)) {
+                if (!isBouncy && !moveData && !isSmallPlatform && i > 5 && Math.random() < 0.35 + (diffFactor * 0.2)) {
                     let behavior = Math.random() > 0.5 ? 'move' : 'spin'; let moveAxis = (Math.random() > 0.5) ? 'x' : 'z';
                     let obsW = Math.round(w * 0.6), obsH = 1.5, obsD = 3;
                     if (obsW < 2) obsW = 2;
                     if (behavior === 'spin') { obsW = w * 0.8; obsD = 1; }
                     let obsY = currentY + 0.25 + (obsH / 2); let moveRange = (w / 2) - (obsW / 2); 
-                    createObstacle(currentX, obsY, currentZ, obsW, obsH, obsD, behavior, moveAxis, moveRange);
+                    
+                    let isDeadly = Math.random() > 0.5;
+                    createObstacle(currentX, obsY, currentZ, obsW, obsH, obsD, behavior, moveAxis, moveRange, isDeadly);
                     hasObstacle = true;
                 }
-                
-                // createBiomeDecorations rimosso da qui
             }
         }
 
-        function createObstacle(x, y, z, w, h, d, behavior, moveAxis, moveRange) {
+        function createObstacle(x, y, z, w, h, d, behavior, moveAxis, moveRange, isDeadly = true) {
             const body = new CANNON.Body({ mass: 0, shape: new CANNON.Box(new CANNON.Vec3(w/2, h/2, d/2)), type: CANNON.Body.KINEMATIC });
-            body.position.set(x, y, z); body.isDeadly = true; world.addBody(body);
-            const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshStandardMaterial({ color: 0xff0000, emissive: 0xff0000, emissiveIntensity: 0.6, roughness: 0.2, metalness: 0.5 }));
+            body.position.set(x, y, z); 
+            if (isDeadly) body.isDeadly = true; 
+            world.addBody(body);
+            
+            const colorHex = isDeadly ? 0xff0000 : 0x0abde3;
+            const emissiveHex = isDeadly ? 0xff0000 : 0x000000;
+            const emissiveInt = isDeadly ? 0.6 : 0;
+
+            const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshStandardMaterial({ 
+                color: colorHex, 
+                emissive: emissiveHex, 
+                emissiveIntensity: emissiveInt, 
+                roughness: 0.2, 
+                metalness: 0.5 
+            }));
             mesh.position.set(x, y, z); mesh.castShadow = true; mesh.receiveShadow = true; scene.add(mesh);
             movingObstacles.push({ type: behavior, body, mesh, baseX: x, baseZ: z, axis: moveAxis, range: moveRange, timeOffset: Math.random() * 100 });
         }
 
-        function createPlatform(x, y, z, w, h, d, color, biomeIdx, isBouncy = false) {
-            const body = new CANNON.Body({ mass: 0, shape: new CANNON.Box(new CANNON.Vec3(w/2, h/2, d/2)) }); 
+        function createPlatform(x, y, z, w, h, d, color, biomeIdx, isBouncy = false, moveData = null) {
+            const body = new CANNON.Body({ 
+                mass: 0, 
+                shape: new CANNON.Box(new CANNON.Vec3(w/2, h/2, d/2)),
+                type: moveData ? CANNON.Body.KINEMATIC : CANNON.Body.STATIC
+            }); 
             body.position.set(x, y, z); 
             body.isBouncy = isBouncy;
             world.addBody(body);
@@ -805,17 +858,21 @@
             const matTexture = biomeTextures[biomeIdx].clone(); matTexture.repeat.set(w / 4, d / 4);
             const materialParams = { color: color, roughness: 0.6, metalness: 0.2 };
             
-            // Effetto visivo speciale se la piattaforma è rimbalzante
             if (isBouncy) {
-                materialParams.emissive = new THREE.Color(0x108030); // Emette luce verde
-                materialParams.roughness = 0.2; // Più liscia/lucida
-                materialParams.metalness = 0.8; // Più metallica
+                materialParams.emissive = new THREE.Color(0x108030); 
+                materialParams.roughness = 0.2; 
+                materialParams.metalness = 0.8; 
             } else {
                 materialParams.map = matTexture;
             }
             
             const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshStandardMaterial(materialParams));
-            mesh.position.set(x, y, z); mesh.receiveShadow = true; mesh.castShadow = true; scene.add(mesh); platforms.push({ mesh, body });
+            mesh.position.set(x, y, z); mesh.receiveShadow = true; mesh.castShadow = true; scene.add(mesh); 
+            platforms.push({ mesh, body });
+
+            if (moveData) {
+                movingPlatforms.push({ body, mesh, baseX: x, baseZ: z, ...moveData });
+            }
         }
 
         function winGame() {
@@ -829,15 +886,12 @@
             let creditsText = document.getElementById('credits-text'); 
             if(creditsText) {
                 creditsText.style.animation = 'none';
-                setTimeout(() => { creditsText.style.animation = 'scrollCredits 12s linear forwards'; }, 50);
+                setTimeout(() => { creditsText.style.animation = 'scrollCredits 25s linear forwards'; }, 50);
             }
-
-            // ✨ Attiva il commento finale dell'AI
             triggerAICommentary('win');
         }
 
         function processDeath() {
-            // Usa maxCheckpointReached invece di activeCheckpointIndex per non perdere progressi cadendo
             const spawnPos = (gameMode === 'normal') ? checkpoints[maxCheckpointReached] : checkpoints[0];
             let heightFellFrom = Math.floor(ballBody.position.y);
 
@@ -876,6 +930,67 @@
             }
         }
 
+        function toggleCheatMenu() {
+            const cm = document.getElementById('cheat-menu');
+            if (cm.style.display === 'flex') {
+                cm.style.display = 'none';
+                if (!isPaused && isGameRunning && !hasWon) document.body.requestPointerLock();
+            } else {
+                const sel = document.getElementById('cheat-biome-select');
+                sel.innerHTML = '';
+                for (let i = 0; i < checkpoints.length; i++) {
+                    let opt = document.createElement('option');
+                    opt.value = i;
+                    let bName = i === 0 ? "Spawn" : (BIOMES[Math.min(i - 1, BIOMES.length - 1)].name + ` (~${Math.floor(checkpoints[i].y)}m)`);
+                    opt.innerText = bName;
+                    sel.appendChild(opt);
+                }
+                sel.value = activeCheckpointIndex;
+                cm.style.display = 'flex';
+                document.exitPointerLock();
+            }
+        }
+
+        function toggleFlyMode() {
+            flyMode = !flyMode;
+            if (flyMode) {
+                world.gravity.set(0, 0, 0);
+                ballBody.velocity.set(0, 0, 0);
+            } else {
+                world.gravity.set(0, highGravity ? -35.0 : -15.0, 0);
+            }
+            document.getElementById('btn-fly').innerText = flyMode ? "🚀 FLY MODE: ON" : "🚀 FLY MODE: OFF";
+        }
+
+        function toggleGravity() {
+            highGravity = !highGravity;
+            if (!flyMode) world.gravity.set(0, highGravity ? -35.0 : -15.0, 0);
+            document.getElementById('btn-grav').innerText = highGravity ? "☄️ GRAVITÀ: PESANTE" : "☄️ GRAVITÀ: NORMALE";
+        }
+
+        function cheatTeleport() {
+            const sel = document.getElementById('cheat-biome-select');
+            const idx = parseInt(sel.value);
+            if (idx >= 0 && idx < checkpoints.length) {
+                const cp = checkpoints[idx];
+                ballBody.velocity.set(0, 0, 0);
+                ballBody.angularVelocity.set(0, 0, 0);
+                ballBody.position.set(cp.x, cp.y + 5, cp.z);
+                activeCheckpointIndex = idx;
+                if (idx > maxCheckpointReached) maxCheckpointReached = idx;
+                toggleCheatMenu();
+            }
+        }
+
+        function cheatWin() {
+            toggleCheatMenu();
+            const lastCp = checkpoints[checkpoints.length - 1];
+            if (lastCp) {
+                ballBody.position.set(lastCp.x, WIN_HEIGHT + 2, lastCp.z);
+                ballBody.velocity.set(0, 0, 0);
+            }
+        }
+
         function setupControls() {
             const handleKey = (e, isDown) => {
                 const key = e.key.toLowerCase();
@@ -885,21 +1000,30 @@
                 if (key === 'd' || e.key === 'ArrowRight') keys.d = isDown;
                 if (key === ' ') keys.space = isDown;
                 if (key === 'e') keys.e = isDown;
+                if (e.key === 'Shift') keys.shift = isDown; 
+                if (key === 't' && isDown) {
+                    toggleCheatMenu();
+                }
             };
             window.addEventListener('keydown', (e) => handleKey(e, true)); window.addEventListener('keyup', (e) => handleKey(e, false));
 
             if(!isMobile) {
                 document.body.addEventListener('click', () => {
-                    if (isGameRunning && !isPaused && !hasWon && document.pointerLockElement !== document.body) document.body.requestPointerLock();
+                    const cheatMenu = document.getElementById('cheat-menu');
+                    if (isGameRunning && !isPaused && !hasWon && cheatMenu.style.display !== 'flex' && document.pointerLockElement !== document.body) {
+                        document.body.requestPointerLock();
+                    }
                 });
                 
                 document.addEventListener('pointerlockchange', () => {
                     const crosshair = document.getElementById('crosshair');
                     const settingsScreen = document.getElementById('settings-screen');
                     const customizeScreen = document.getElementById('customize-screen');
+                    const cheatMenu = document.getElementById('cheat-menu');
                     
                     if((settingsScreen && settingsScreen.style.display === 'flex') || 
                        (customizeScreen && customizeScreen.style.display === 'flex') || 
+                       (cheatMenu && cheatMenu.style.display === 'flex') ||
                        hasWon) return;
                     
                     if (document.pointerLockElement === document.body) { 
@@ -1017,8 +1141,6 @@
                 }
                 
                 deathReason = 'start'; processDeath();
-                
-                // ✨ Chiama l'AI per iniziare la telecronaca
                 triggerAICommentary('start');
             }, 500);
         }
@@ -1065,12 +1187,58 @@
             if (!isGameRunning || isPaused || hasWon) return;
             if (pendingDeath) { processDeath(); return; }
 
-            // Controlla il contatto a terra PRIMA dell'input per avere la fisica corretta in volo
-            let isTouchingGround = false;
-            for(let i=0; i<world.contacts.length; i++){ if(world.contacts[i].bi === ballBody || world.contacts[i].bj === ballBody){ isTouchingGround = true; break; } }
-
             const forward = new THREE.Vector3(); camera.getWorldDirection(forward); forward.y = 0; forward.normalize();
             const right = new THREE.Vector3(); right.crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
+
+            if (flyMode) {
+                const flySpeed = 40;
+                let dx = 0, dy = 0, dz = 0;
+                
+                if (keys.w) { dx += forward.x; dz += forward.z; }
+                if (keys.s) { dx -= forward.x; dz -= forward.z; }
+                if (keys.a) { dx -= right.x; dz -= right.z; }
+                if (keys.d) { dx += right.x; dz += right.z; }
+                if (keys.space) dy += 1;   
+                if (keys.shift) dy -= 1;   
+
+                let mag = Math.sqrt(dx*dx + dy*dy + dz*dz);
+                if (mag > 0) {
+                    dx = (dx/mag) * flySpeed; 
+                    dy = (dy/mag) * flySpeed; 
+                    dz = (dz/mag) * flySpeed;
+                }
+                
+                ballBody.velocity.set(dx, dy, dz);
+                ballBody.angularVelocity.set(0, 0, 0); 
+                
+                world.step(1/60, dt);
+                ballMesh.position.copy(ballBody.position); 
+                ballMesh.quaternion.copy(ballBody.quaternion);
+                ballLight.position.copy(ballMesh.position); ballLight.position.y += 2;
+                
+                for(let i = checkpoints.length - 1; i >= 0; i--) { 
+                    if(ballBody.position.y >= checkpoints[i].y - 2) { 
+                        if (i !== activeCheckpointIndex) {
+                            activeCheckpointIndex = i;
+                            let activeBiome = BIOMES[Math.min(activeCheckpointIndex, BIOMES.length - 1)];
+                            targetBgColor.setHex(activeBiome.bg);
+                            document.getElementById('current-biome-hud').innerText = `${activeBiome.emoji} ${activeBiome.name}`;
+                        }
+                        break; 
+                    } 
+                }
+                
+                if (ballBody.position.y > bestHeight && ballBody.position.y < WIN_HEIGHT + 10) {
+                    bestHeight = ballBody.position.y;
+                    localStorage.setItem('onlyBallUpBest', bestHeight);
+                }
+                
+                if (ballBody.position.y >= WIN_HEIGHT) winGame();
+                return; 
+            }
+
+            let isTouchingGround = false;
+            for(let i=0; i<world.contacts.length; i++){ if(world.contacts[i].bi === ballBody || world.contacts[i].bj === ballBody){ isTouchingGround = true; break; } }
 
             const inputForce = new THREE.Vector3(0, 0, 0);
             
@@ -1084,28 +1252,21 @@
 
             if (inputForce.length() > 0) {
                 if(inputForce.length() > 1) inputForce.normalize();
-                
-                // Mantiene il controllo aereo all' 80% della forza terrestre per dare direzionalità
                 let currentForce = isTouchingGround ? MOVE_FORCE : MOVE_FORCE * 0.8;
                 inputForce.multiplyScalar(currentForce);
                 ballBody.applyForce(new CANNON.Vec3(inputForce.x, 0, inputForce.z), ballBody.position);
-                
                 let horSpeed = Math.sqrt(ballBody.velocity.x**2 + ballBody.velocity.z**2);
                 if(horSpeed > MAX_SPEED) { let ratio = MAX_SPEED / horSpeed; ballBody.velocity.x *= ratio; ballBody.velocity.z *= ratio; }
             } else {
-                // Attrito: a terra (0.90) frena subito, in aria (0.99) permette di planare e mantenere lo slancio in avanti
                 let friction = isTouchingGround ? 0.90 : 0.99;
                 ballBody.velocity.x *= friction; 
                 ballBody.velocity.z *= friction; 
-                
-                // NON applichiamo l'attrito angolare in volo qui, altrimenti il pallone smette di girare
                 if (isTouchingGround) {
                     ballBody.angularVelocity.x *= friction; 
                     ballBody.angularVelocity.z *= friction;
                 }
             }
 
-            // NOVITÀ: In volo la palla ruota proporzionalmente e visivamente seguendo l'arco del salto/caduta!
             if (!isTouchingGround) {
                 ballBody.angularVelocity.x = ballBody.velocity.z * 0.8;
                 ballBody.angularVelocity.z = -ballBody.velocity.x * 0.8;
@@ -1121,7 +1282,11 @@
 
             if (keys.e && gameMode === 'normal') { deathReason = 'checkpoint_key'; pendingDeath = true; keys.e = false; }
 
-            // NOVITÀ: Sistema Anticaduta - Teletrasporto automatico se cadi al di sotto dell'altitudine del checkpoint
+            if (ballBody.position.y > bestHeight && ballBody.position.y < WIN_HEIGHT + 10) {
+                bestHeight = ballBody.position.y;
+                localStorage.setItem('onlyBallUpBest', bestHeight);
+            }
+
             let activeCheckpointHeight = checkpoints[maxCheckpointReached].y - 3;
             if (ballBody.position.y < activeCheckpointHeight - 15) { 
                 deathReason = 'fall'; 
@@ -1141,10 +1306,7 @@
                     let newBiome = BIOMES[Math.min(detectedBiomeIndex, BIOMES.length - 1)];
                     showBiomeMessage(newBiome.emoji, newBiome.name, newBiome.grid);
                     if (gameMode === 'normal') showCheckpointMessage("CHECKPOINT RAGGIUNTO! Premi 'E' per tornare qui.");
-                    
-                    // ✨ Triggera il commento di vittoria per il nuovo bioma!
                     triggerAICommentary('checkpoint', { height: Math.floor(checkpoints[detectedBiomeIndex].y), biome: newBiome.name });
-                    
                     maxCheckpointReached = detectedBiomeIndex; 
                 }
                 activeCheckpointIndex = detectedBiomeIndex;
@@ -1165,12 +1327,20 @@
                 obs.mesh.position.copy(obs.body.position); obs.mesh.quaternion.copy(obs.body.quaternion);
             });
 
+            movingPlatforms.forEach(plat => {
+                const offset = Math.sin(time * plat.speed + plat.timeOffset) * plat.range;
+                if (plat.axis === 'x') {
+                    plat.body.position.x = plat.baseX + offset;
+                } else {
+                    plat.body.position.z = plat.baseZ + offset;
+                }
+                plat.mesh.position.copy(plat.body.position);
+            });
+
             world.step(1/60, dt);
             wasTouchingGround = isTouchingGround;
-
             ballMesh.position.copy(ballBody.position); ballMesh.quaternion.copy(ballBody.quaternion);
             ballLight.position.copy(ballMesh.position); ballLight.position.y += 2;
-
             if (ballBody.position.y < -20) { deathReason = 'fall'; pendingDeath = true; }
         }
 
@@ -1186,7 +1356,6 @@
                 if (pType === 'rise' || pType === 'riseFast') { positions[i3+1] += (pType === 'riseFast' ? 0.3 : 0.1) + Math.random() * 0.05; } 
                 else if (pType === 'fall' || pType === 'snow') { positions[i3+1] -= (pType === 'snow' ? 0.15 : 0.05) + Math.random() * 0.05; if (pType === 'snow') { positions[i3] += Math.sin(time + i) * 0.02; positions[i3+2] += Math.cos(time + i) * 0.02; } } 
                 else if (pType === 'float') { positions[i3+1] += Math.sin(time * 2 + i) * 0.02; }
-
                 const camPos = camera.position;
                 if(positions[i3] < camPos.x - 50) positions[i3] = camPos.x + 50; if(positions[i3] > camPos.x + 50) positions[i3] = camPos.x - 50;
                 if(positions[i3+1] < camPos.y - 50) positions[i3+1] = camPos.y + 50; if(positions[i3+1] > camPos.y + 50) positions[i3+1] = camPos.y - 50;
@@ -1206,27 +1375,21 @@
         function animate() {
             requestAnimationFrame(animate);
             const now = performance.now(); const dt = (now - lastTime) / 1000; lastTime = now;
-            
             updatePhysics(dt); updateCamera(); updateParticles(now / 1000);
-
             currentBgColor.lerp(targetBgColor, 0.02);
             scene.background = currentBgColor; scene.fog.color = currentBgColor;
-
             if (isGameRunning && !hasWon) {
                 let currentH = Math.max(0, ballBody.position.y);
                 const hVal = document.getElementById('height-val');
                 if(hVal) hVal.innerText = Math.floor(currentH);
-                
                 let progressPerc = Math.min(100, Math.max(0, (currentH / WIN_HEIGHT) * 100));
-                
                 const pFill = document.getElementById('progress-fill');
                 if(pFill) pFill.style.width = progressPerc + '%';
-                
-                // Aggiornamento Testo Percentuale
                 const pText = document.getElementById('progress-text');
                 if(pText) pText.innerText = Math.floor(progressPerc) + '%';
+                document.getElementById('hud-best-val').innerText = Math.floor(bestHeight);
+                document.getElementById('menu-best-val').innerText = Math.floor(bestHeight);
             }
-
             renderer.render(scene, camera);
         }
     </script>
