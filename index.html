@@ -152,7 +152,7 @@
         /* FIX: Menù Pausa e Titoli di coda NASCOSTI di default */
         #pause-screen, #credits-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: none; /* Corretto: non appaiono all'avvio */
+            display: none; 
             flex-direction: column; justify-content: center; align-items: center;
             pointer-events: auto; transition: opacity 0.5s;
             background: radial-gradient(circle at center, rgba(5, 8, 15, 0.85), rgba(0, 0, 0, 0.98));
@@ -323,6 +323,14 @@
         .modal-screen input[type="range"]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: rgba(255,255,255,0.1); border-radius: 3px; border: 1px solid rgba(0,255,255,0.15);}
         .modal-screen input[type="range"]::-webkit-slider-thumb { border: 2px solid #00ffff; height: 20px; width: 20px; border-radius: 50%; background: #111; cursor: pointer; -webkit-appearance: none; margin-top: -8px; box-shadow: 0 0 12px rgba(0,255,255,0.6); transition: transform 0.1s;}
         .modal-screen input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+        /* NUOVO: Stile per il caricamento file */
+        .custom-file-input {
+            padding: 8px; border-radius: 4px; background: rgba(0, 0, 0, 0.6); color: white; font-size: 12px; width: 100%;
+            border: 1px dashed rgba(0, 255, 255, 0.5); outline: none; font-family: 'Montserrat', sans-serif; cursor: pointer;
+            box-sizing: border-box; transition: all 0.3s ease;
+        }
+        .custom-file-input:hover { background: rgba(0, 255, 255, 0.1); border-color: #00ffff; }
 
         .close-x {
             position: absolute; top: 15px; right: 20px; font-size: 26px; font-weight: 900;
@@ -594,12 +602,21 @@
             <h2>🎨 STILE PALLINA</h2>
             <div class="input-wrapper">
                 <label>Modello Sfera</label>
-                <select id="ball-type" onchange="applyCustomization()">
+                <!-- NUOVO: Aggiunta funzione toggle e nuovi modelli -->
+                <select id="ball-type" onchange="toggleCustomImageUpload(); applyCustomization();">
                     <option value="default">Sfera Liscia Base</option>
                     <option value="soccer" selected>⚽ Da Calcio (HD)</option>
                     <option value="beach">🏖️ Da Spiaggia</option>
                     <option value="tennis">🎾 Da Tennis</option>
+                    <option value="basketball">🏀 Da Basket</option>
+                    <option value="earth">🌍 Pianeta Terra</option>
+                    <option value="custom">🖼️ Immagine Custom</option>
                 </select>
+            </div>
+            <!-- NUOVO: Contenitore per caricamento immagine custom -->
+            <div class="input-wrapper" id="custom-upload-wrapper" style="display: none;">
+                <label style="color: #00ffff;">Carica la tua texture</label>
+                <input type="file" id="custom-image-upload" accept="image/*" class="custom-file-input" onchange="handleCustomImage(event)">
             </div>
             <div class="input-wrapper">
                 <label>Colore Verniciatura</label>
@@ -747,6 +764,7 @@
         let bestHeight = localStorage.getItem('onlyBallUpBest') || 0;
         let flyMode = false;
         let highGravity = false;
+        let userCustomTexture = null; // NUOVO: Variabile per l'immagine caricata dall'utente
 
         let pendingDeath = false; let deathReason = '';
         let particles, particleGeo, particleMat; const PARTICLE_COUNT = 1500;
@@ -881,6 +899,31 @@
             ctx.fillStyle = '#b8e994'; ctx.fillRect(0,0,512,256); ctx.strokeStyle = '#f5f6fa'; ctx.lineWidth = 14; ctx.lineCap = 'round';
             ctx.beginPath(); for(let x=0; x<=512; x++) { let y = 128 + Math.sin(x * Math.PI * 2 / 256) * 80; if(x===0) ctx.moveTo(x, y); else ctx.lineTo(x, y); } ctx.stroke();
             customBallTextures['tennis'] = new THREE.CanvasTexture(cTennis);
+
+            // NUOVO: Pallone da Basket
+            let cBasket = document.createElement('canvas'); cBasket.width = 512; cBasket.height = 256; ctx = cBasket.getContext('2d');
+            ctx.fillStyle = '#e67e22'; ctx.fillRect(0,0,512,256);
+            ctx.fillStyle = '#d35400'; 
+            for(let i=0; i<3000; i++) { ctx.fillRect(Math.random()*512, Math.random()*256, 2, 2); } // Puntini del grip
+            ctx.strokeStyle = '#2c3e50'; ctx.lineWidth = 6;
+            ctx.beginPath(); ctx.moveTo(0, 128); ctx.lineTo(512, 128); ctx.stroke(); 
+            ctx.beginPath(); ctx.moveTo(256, 0); ctx.lineTo(256, 256); ctx.stroke(); 
+            ctx.beginPath(); ctx.arc(128, 128, 90, -Math.PI/2, Math.PI/2); ctx.stroke(); 
+            ctx.beginPath(); ctx.arc(384, 128, 90, Math.PI/2, Math.PI*1.5); ctx.stroke(); 
+            customBallTextures['basketball'] = new THREE.CanvasTexture(cBasket);
+
+            // NUOVO: Pianeta Terra
+            let cEarth = document.createElement('canvas'); cEarth.width = 512; cEarth.height = 256; ctx = cEarth.getContext('2d');
+            ctx.fillStyle = '#0984e3'; ctx.fillRect(0,0,512,256); // Oceano
+            ctx.fillStyle = '#2ecc71'; // Continenti
+            for(let i=0; i<150; i++) {
+                ctx.beginPath();
+                ctx.arc(Math.random()*512, Math.random()*256, Math.random()*30+10, 0, Math.PI*2);
+                ctx.fill();
+            }
+            ctx.fillStyle = '#f5f6fa'; // Ghiaccio ai poli
+            ctx.fillRect(0, 0, 512, 20); ctx.fillRect(0, 236, 512, 20);
+            customBallTextures['earth'] = new THREE.CanvasTexture(cEarth);
         }
 
         function createParticleSystem() {
@@ -943,6 +986,24 @@
             sunGrd.addColorStop(0.2, 'rgba(255, 210, 150, 0.6)');
             sunGrd.addColorStop(0.5, 'rgba(255, 180, 100, 0.1)');
             sunGrd.addColorStop(1, 'rgba(255, 180, 100, 0)');
+            
+            // NUOVO: Nuvole procedurali bianche, dense e gassose tramite blur filter
+            envCtx.filter = 'blur(10px)'; // Rende le forme sfocate e spumose come il gas
+            envCtx.fillStyle = 'rgba(255, 255, 255, 0.75)'; // Nuvole bianche ben visibili
+            for(let i=0; i<50; i++) {
+                let cx = Math.random() * 1024;
+                let cy = 10 + Math.random() * 130; // Molto in alto nel cielo per non coprire il percorso
+                let cr = 40 + Math.random() * 90; // Nuvole grandi
+                
+                envCtx.beginPath();
+                envCtx.arc(cx, cy, cr, 0, Math.PI * 2);
+                envCtx.arc(cx + cr*0.5, cy + cr*0.2, cr*0.7, 0, Math.PI * 2);
+                envCtx.arc(cx - cr*0.5, cy - cr*0.1, cr*0.9, 0, Math.PI * 2);
+                envCtx.fill();
+            }
+            envCtx.filter = 'none'; // Rimuove il blur per non sfocare il sole
+
+            // Aggiungiamo il Sole dopo le nuvole
             envCtx.fillStyle = sunGrd;
             envCtx.beginPath();
             envCtx.arc(512, 120, 200, 0, Math.PI * 2);
@@ -1032,6 +1093,7 @@
             generateRandomMap(); applyCustomization(); animate();
         }
 
+        // NUOVO E MIGLIORATO: Applica la personalizzazione garantendo l'RTX su TUTTE
         function applyCustomization() {
             const type = document.getElementById('ball-type')?.value || 'soccer'; 
             const color = document.getElementById('ball-color')?.value || '#ffffff'; 
@@ -1039,20 +1101,68 @@
             
             ballMesh.material.map = null;
             ballMesh.material.bumpMap = null;
+            ballMesh.material.color.set(0xffffff); // Reset bianco per evitare che il color loader scurisca le texture
             
             if(type === 'default') { 
                 ballMesh.material.color.set(color); 
+            } else if (type === 'custom') {
+                if(userCustomTexture) {
+                    ballMesh.material.map = userCustomTexture;
+                } else {
+                    ballMesh.material.color.set(color); // Colore fallback se l'immagine non è ancora caricata
+                }
             } else { 
-                ballMesh.material.map = customBallTextures[type]; ballMesh.material.color.set(0xffffff); 
+                ballMesh.material.map = customBallTextures[type]; 
                 if(type === 'soccer') {
                     ballMesh.material.bumpMap = customBallBumpTextures['soccer']; 
                     ballMesh.material.bumpScale = 0.08; 
                     ballMesh.material.roughness = 0.2;
                 }
             }
+            
+            // Forzatura dei parametri RTX per renderla fotorealistica in ogni caso
             ballMesh.material.envMapIntensity = 2.0; 
-            ballMesh.material.needsUpdate = true; ballMesh.material.metalness = parseFloat(metal);
+            ballMesh.material.clearcoat = 1.0; 
+            ballMesh.material.clearcoatRoughness = 0.05; // Vernice liscia a specchio
+            ballMesh.material.metalness = parseFloat(metal);
+            
+            // Se non è da calcio (che ha già una sua ruvidità calcolata), rendiamo la texture liscissima
+            if(type !== 'soccer') ballMesh.material.roughness = 0.1; 
+
+            ballMesh.material.needsUpdate = true; 
             world.defaultContactMaterial.restitution = 0.0; 
+        }
+
+        // NUOVO: Gestisce l'apparizione del pulsante Upload in base al menù
+        function toggleCustomImageUpload() {
+            const type = document.getElementById('ball-type').value;
+            const wrapper = document.getElementById('custom-upload-wrapper');
+            if (type === 'custom') wrapper.style.display = 'block';
+            else wrapper.style.display = 'none';
+        }
+
+        // NUOVO: Gestisce il caricamento del file e lo trasforma in una Texture 3D
+        function handleCustomImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        userCustomTexture = new THREE.CanvasTexture(canvas);
+                        userCustomTexture.encoding = THREE.sRGBEncoding;
+                        userCustomTexture.needsUpdate = true;
+                        applyCustomization(); // Riapplica subito i materiali
+                    }
+                    img.src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
         }
 
         function clearMap() {
