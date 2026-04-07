@@ -54,6 +54,25 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.5); display: none; letter-spacing: 2px;
         }
 
+        /* --- UI POTENZIAMENTI LATERALE --- */
+        #powerup-ui {
+            position: absolute; top: 50%; left: 20px; transform: translateY(-50%);
+            display: flex; flex-direction: column; gap: 10px; z-index: 85;
+        }
+        .pu-container {
+            display: none; align-items: center; gap: 12px;
+            background: rgba(0,0,0,0.75); padding: 8px 15px;
+            border-radius: 12px; border: 2px solid; backdrop-filter: blur(8px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.6);
+            transition: transform 0.2s;
+        }
+        .pu-icon { font-size: 22px; line-height: 1; text-shadow: 0 0 10px currentColor; }
+        .pu-bar-bg { width: 100px; height: 8px; background: rgba(255,255,255,0.15); border-radius: 4px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); }
+        .pu-bar-fill { height: 100%; width: 100%; transition: width 0.1s linear; }
+        
+        @keyframes pulseAlert { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.05); } 100% { opacity: 1; transform: scale(1); } }
+        .pu-ending { animation: pulseAlert 0.5s infinite; }
+
         #hud {
             padding: 20px; font-size: 18px; font-weight: bold;
             display: flex; justify-content: space-between; align-items: flex-start;
@@ -66,6 +85,7 @@
             border-radius: 8px; padding: 12px 25px; text-align: center;
             line-height: 1.1; min-width: 130px; position: relative;
             box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 0 15px rgba(10, 189, 227, 0.2); pointer-events: auto;
+            transition: box-shadow 0.3s ease;
         }
 
         .modern-title { font-size: 11px; letter-spacing: 3px; color: #c8d6e5; text-transform: uppercase; margin-bottom: 4px; font-weight: bold; }
@@ -183,14 +203,25 @@
         .creator-name { color: #ff007c; text-shadow: 0 0 10px rgba(255, 0, 124, 0.8); font-weight: 900; letter-spacing: 3px; font-size: 16px; } 
 
         .cyber-features {
-            display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; 
-            margin-bottom: 35px; width: 100%; max-width: 800px; perspective: 1000px;
+            display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; 
+            margin-bottom: 20px; width: 100%; max-width: 800px; perspective: 1000px;
             cursor: pointer; position: relative;
         }
 
+        .cyber-powerups {
+            display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; 
+            margin-bottom: 25px; width: 100%; max-width: 800px;
+        }
+
+        .pu-badge {
+            padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 900;
+            border: 1px solid; text-transform: uppercase; letter-spacing: 1px;
+            background: rgba(0,0,0,0.5); display: flex; align-items: center; gap: 5px;
+        }
+
         .cyber-features::after {
-            content: '👆 CLICCA PER INFORMAZIONI DETTAGLIATE';
-            position: absolute; bottom: -25px; left: 50%; transform: translateX(-50%);
+            content: '👆 CLICCA PER TUTTE LE INFO DI GIOCO';
+            position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%);
             font-size: 11px; font-weight: 900; color: #00ffff; letter-spacing: 2px;
             opacity: 0; transition: opacity 0.3s; text-shadow: 0 0 8px #00ffff; pointer-events: none;
         }
@@ -199,8 +230,8 @@
         
         .feature-card {
             background: linear-gradient(135deg, rgba(15, 20, 30, 0.9), rgba(5, 8, 12, 0.95));
-            border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 12px 20px;
-            display: flex; align-items: center; gap: 15px; min-width: 200px; flex: 1 1 calc(33.333% - 15px);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 10px 15px;
+            display: flex; align-items: center; gap: 10px; min-width: 160px; flex: 1 1 calc(33.333% - 15px);
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             position: relative; overflow: hidden; transform-style: preserve-3d;
             box-shadow: 0 10px 20px rgba(0,0,0,0.5); box-sizing: border-box;
@@ -223,19 +254,19 @@
         .feat-cyan::before { background: #00ffff; box-shadow: 0 0 10px #00ffff; }
 
         .feat-icon {
-            font-size: 18px; font-weight: 900; display: flex; align-items: center; justify-content: center;
-            width: 38px; height: 38px; border-radius: 6px; background: rgba(255,255,255,0.03); flex-shrink: 0;
+            font-size: 16px; font-weight: 900; display: flex; align-items: center; justify-content: center;
+            width: 32px; height: 32px; border-radius: 6px; background: rgba(255,255,255,0.03); flex-shrink: 0;
         }
         
         .feat-green .feat-icon { color: #2ed573; border: 1px solid rgba(46, 213, 115, 0.2); text-shadow: 0 0 8px rgba(46, 213, 115, 0.5); }
         .feat-red .feat-icon { color: #ff4757; border: 1px solid rgba(255, 71, 87, 0.2); text-shadow: 0 0 8px rgba(255, 71, 87, 0.5); }
-        .feat-purple .feat-icon { color: #9b59b6; border: 1px solid rgba(155, 89, 182, 0.2); text-shadow: 0 0 8px rgba(155, 89, 182, 0.5); font-size: 16px;}
-        .feat-orange .feat-icon { color: #ffa502; border: 1px solid rgba(255, 165, 2, 0.2); text-shadow: 0 0 8px rgba(255, 165, 2, 0.5); font-size: 22px;}
-        .feat-cyan .feat-icon { color: #000; background: #00ffff; box-shadow: 0 0 15px rgba(0, 255, 255, 0.6); border: none; font-size: 20px;}
+        .feat-purple .feat-icon { color: #9b59b6; border: 1px solid rgba(155, 89, 182, 0.2); text-shadow: 0 0 8px rgba(155, 89, 182, 0.5); }
+        .feat-orange .feat-icon { color: #ffa502; border: 1px solid rgba(255, 165, 2, 0.2); text-shadow: 0 0 8px rgba(255, 165, 2, 0.5); font-size: 20px;}
+        .feat-cyan .feat-icon { color: #000; background: #00ffff; box-shadow: 0 0 15px rgba(0, 255, 255, 0.6); border: none; font-size: 18px;}
 
         .feat-text { display: flex; flex-direction: column; text-align: left; }
-        .feat-title { font-size: 12px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; color: #fff; margin-bottom: 4px; }
-        .feat-desc { font-size: 10px; color: #8a9ba8; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+        .feat-title { font-size: 11px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; color: #fff; margin-bottom: 2px; }
+        .feat-desc { font-size: 9px; color: #8a9ba8; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
 
         @media (max-width: 900px) { .feature-card { flex: 1 1 calc(50% - 15px); } }
         @media (max-width: 768px) { .game-title { font-size: 38px; letter-spacing: 6px; } .feature-card { flex: 1 1 100%; min-width: 100%; } }
@@ -381,6 +412,10 @@
             #controls-panel { display: none !important; }
             #hud { font-size: 14px; }
             #speedrun-timer { font-size: 18px; top: 55px;}
+            #powerup-ui { top: 50%; left: 10px; gap: 8px; transform: translateY(-50%); }
+            .pu-container { padding: 4px 8px; }
+            .pu-icon { font-size: 16px; }
+            .pu-bar-bg { width: 60px; height: 4px;}
         }
     </style>
 </head>
@@ -399,6 +434,28 @@
         </div>
 
         <div id="speedrun-timer">00:00.000</div>
+        
+        <!-- NUOVO: UI POTENZIAMENTI CON BARRA DEL TEMPO -->
+        <div id="powerup-ui">
+            <div id="pu-ui-speed" class="pu-container" style="border-color: yellow; color: yellow;">
+                <div class="pu-icon">⚡</div><div class="pu-bar-bg"><div id="pu-bar-speed" class="pu-bar-fill" style="background: yellow;"></div></div>
+            </div>
+            <div id="pu-ui-jump" class="pu-container" style="border-color: magenta; color: magenta;">
+                <div class="pu-icon">🚀</div><div class="pu-bar-bg"><div id="pu-bar-jump" class="pu-bar-fill" style="background: magenta;"></div></div>
+            </div>
+            <div id="pu-ui-grav" class="pu-container" style="border-color: cyan; color: cyan;">
+                <div class="pu-icon">🪶</div><div class="pu-bar-bg"><div id="pu-bar-grav" class="pu-bar-fill" style="background: cyan;"></div></div>
+            </div>
+            <div id="pu-ui-shield" class="pu-container" style="border-color: #3498db; color: #3498db;">
+                <div class="pu-icon">🛡️</div><div class="pu-bar-bg"><div id="pu-bar-shield" class="pu-bar-fill" style="background: #3498db;"></div></div>
+            </div>
+            <div id="pu-ui-freeze" class="pu-container" style="border-color: #ecf0f1; color: #ecf0f1;">
+                <div class="pu-icon">❄️</div><div class="pu-bar-bg"><div id="pu-bar-freeze" class="pu-bar-fill" style="background: #ecf0f1;"></div></div>
+            </div>
+            <div id="pu-ui-shrink" class="pu-container" style="border-color: #2ecc71; color: #2ecc71;">
+                <div class="pu-icon">🤏</div><div class="pu-bar-bg"><div id="pu-bar-shrink" class="pu-bar-fill" style="background: #2ecc71;"></div></div>
+            </div>
+        </div>
 
         <div id="crosshair"></div>
         <div id="hud">
@@ -473,7 +530,7 @@
                             <div class="feat-icon">≈</div>
                             <div class="feat-text">
                                 <span class="feat-title">Arancio / Slime</span>
-                                <span class="feat-desc">Molto Scivolose</span>
+                                <span class="feat-desc">Scivolose ma Salti</span>
                             </div>
                         </div>
                         <div class="feature-card feat-cyan" style="flex: 1 1 100%; justify-content: center; max-width: 400px; margin: 0 auto;">
@@ -485,7 +542,17 @@
                         </div>
                     </div>
 
-                    <div style="color: #00ffff; font-size: 20px; font-weight: 900; margin-bottom: 25px; letter-spacing: 4px; text-shadow: 0 0 10px rgba(0, 255, 255, 0.6); margin-top: 15px;">
+                    <!-- NUOVO: LISTA POWER UPS MENU INIZIALE -->
+                    <div class="cyber-powerups">
+                        <span class="pu-badge" style="color: yellow; border-color: yellow;"><span style="font-size: 16px;">⚡</span> Velocità</span>
+                        <span class="pu-badge" style="color: magenta; border-color: magenta;"><span style="font-size: 16px;">🚀</span> Salto</span>
+                        <span class="pu-badge" style="color: cyan; border-color: cyan;"><span style="font-size: 16px;">🪶</span> Gravità</span>
+                        <span class="pu-badge" style="color: #3498db; border-color: #3498db;"><span style="font-size: 16px;">🛡️</span> Scudo</span>
+                        <span class="pu-badge" style="color: #ecf0f1; border-color: #ecf0f1;"><span style="font-size: 16px;">❄️</span> Ghiaccio</span>
+                        <span class="pu-badge" style="color: #2ecc71; border-color: #2ecc71;"><span style="font-size: 16px;">🤏</span> Rimpicciolisci</span>
+                    </div>
+
+                    <div style="color: #00ffff; font-size: 20px; font-weight: 900; margin-bottom: 25px; letter-spacing: 4px; text-shadow: 0 0 10px rgba(0, 255, 255, 0.6); margin-top: 5px;">
                         RECORD: <span id="menu-best-val">0</span>m
                     </div>
                     
@@ -534,6 +601,13 @@
             </p>
             
             <div class="info-content-grid">
+                <div class="info-row" style="border-color: #f1c40f;">
+                    <div class="feat-icon" style="color: #f1c40f; border-color: #f1c40f;">💎</div>
+                    <div>
+                        <strong style="color: #f1c40f;">POTENZIAMENTI</strong><br>
+                        <span style="font-size: 11px; color: #dcdde1;">Guarda il lato sinistro dello schermo! Mostra i potenziamenti attivi.</span>
+                    </div>
+                </div>
                 <div class="info-row green">
                     <div class="feat-icon" style="color: #2ed573; border-color: #2ed573;">▲</div>
                     <div>
@@ -552,7 +626,7 @@
                     <div class="feat-icon" style="color: #ffa502; border-color: #ffa502;">≈</div>
                     <div>
                         <strong style="color: #ffa502;">SLIME ARANCIO</strong><br>
-                        <span style="font-size: 11px; color: #dcdde1;">Senza attrito! Se ci cadi sopra scivolerai inesorabilmente come sul ghiaccio. Fai attenzione ai salti!</span>
+                        <span style="font-size: 11px; color: #dcdde1;">Senza attrito! Puoi saltare ma scivolerai inesorabilmente come sul ghiaccio. Fai attenzione ai salti!</span>
                     </div>
                 </div>
                 <div class="info-row purple">
@@ -639,7 +713,6 @@
         </div>
     </div>
 
-    <!-- Librerie essenziali via CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
 
@@ -722,6 +795,17 @@
         
         let ballPhysMat, normalPhysMat, slimePhysMat;
         
+        // --- NUOVO: SISTEMA CACHE MATERIALI (Elimina lo Stuttering) ---
+        const materialCache = {};
+        function getCachedMaterial(params, isPhysical = true) {
+            let key = JSON.stringify(params);
+            if (!materialCache[key]) {
+                if(isPhysical) materialCache[key] = new THREE.MeshPhysicalMaterial(params);
+                else materialCache[key] = new THREE.MeshStandardMaterial(params);
+            }
+            return materialCache[key];
+        }
+
         const propGeos = {
             cyl: new THREE.CylinderGeometry(1, 1, 1, 12),
             box: new THREE.BoxGeometry(1, 1, 1),
@@ -729,7 +813,9 @@
             cone: new THREE.ConeGeometry(1, 1, 12),
             torus: new THREE.TorusGeometry(1, 0.2, 12, 24),
             dode: new THREE.DodecahedronGeometry(1, 0),
-            plane: new THREE.PlaneGeometry(1, 1)
+            plane: new THREE.PlaneGeometry(1, 1),
+            tetra: new THREE.TetrahedronGeometry(0.8),
+            octa: new THREE.OctahedronGeometry(0.8)
         };
         const platGeos = {};
         function getPlatGeo(w, h, d, type) {
@@ -744,6 +830,11 @@
 
         let platforms = [], movingObstacles = [], movingPlatforms = [], vanishingPlatforms = [], flags = [], decorations = [];
         let animatedProps = []; 
+        
+        let powerUps = []; 
+        let activePowerUps = { speed: 0, jump: 0, grav: 0, shield: 0, freeze: 0, shrink: 0 };
+        const PU_DURATION = 8.0; 
+        let dynamicGameTime = 0; // Per gestire il congelamento del tempo
         
         let gameElapsedTime = 0; 
         let keys = { w: false, a: false, s: false, d: false, space: false, e: false, shift: false };
@@ -772,7 +863,7 @@
         let targetCameraAzimuth = 0, targetCameraElevation = 0.3;
         const MIN_ELEVATION = 0.05, MAX_ELEVATION = Math.PI / 2.1, MIN_RADIUS = 3, MAX_RADIUS = 25;
 
-        const BALL_RADIUS = 0.8; const MOVE_FORCE = 45; const MAX_SPEED = 20; const JUMP_FORCE = 18; 
+        const BALL_RADIUS = 0.8; const BASE_MOVE_FORCE = 45; const BASE_MAX_SPEED = 20; const BASE_JUMP_FORCE = 18; 
         let wasTouchingGround = true, jumpBufferTime = 0, coyoteTime = 0;     
         const JUMP_BUFFER_MAX = 0.15, COYOTE_TIME_MAX = 0.15; 
 
@@ -1024,8 +1115,9 @@
             renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
             renderer.outputEncoding = THREE.sRGBEncoding; 
             renderer.physicallyCorrectLights = true; 
+            
             renderer.toneMapping = THREE.ACESFilmicToneMapping; 
-            renderer.toneMappingExposure = 1.3; 
+            renderer.toneMappingExposure = 1.6; 
             
             document.body.appendChild(renderer.domElement);
 
@@ -1067,8 +1159,20 @@
             ballMesh.castShadow = true; ballMesh.receiveShadow = true; scene.add(ballMesh);
 
             ballBody.addEventListener("collide", function(e) { 
-                if (e.body.isDeadly) { pendingDeath = true; deathReason = 'block'; } 
-                else if (e.body.isBouncy) ballBody.velocity.y = JUMP_FORCE * 1.8;
+                if (e.body.isDeadly) { 
+                    if (activePowerUps.shield > 0) {
+                        activePowerUps.shield = 0; 
+                        showCheckpointMessage("SCUDO DISTRUTTO! 🛡️");
+                        ballBody.velocity.y = BASE_JUMP_FORCE * 0.8;
+                        ballBody.velocity.x *= -1; ballBody.velocity.z *= -1;
+                    } else {
+                        pendingDeath = true; deathReason = 'block'; 
+                    }
+                } 
+                else if (e.body.isBouncy) {
+                    let boostForce = activePowerUps.jump > 0 ? (BASE_JUMP_FORCE * 1.5) : BASE_JUMP_FORCE;
+                    ballBody.velocity.y = boostForce * 1.8;
+                }
             });
 
             document.getElementById('menu-best-val').innerText = Math.floor(bestHeight);
@@ -1130,16 +1234,55 @@
         function clearMap() {
             platforms.forEach(p => { world.removeBody(p.body); scene.remove(p.mesh); });
             movingObstacles.forEach(o => { world.removeBody(o.body); scene.remove(o.mesh); });
+            
+            powerUps.forEach(pu => { scene.remove(pu.mesh); });
+            powerUps = [];
+
             movingPlatforms = []; vanishingPlatforms = []; flags = []; animatedProps = [];
             decorations.forEach(d => { scene.remove(d); });
             platforms = []; movingObstacles = []; flags = []; checkpoints = []; decorations = [];
         }
 
         function createFlag(x, y, z) {
-            const pole = new THREE.Mesh(propGeos.cyl, new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.8 }));
-            pole.scale.set(0.1, 4, 0.1); pole.position.set(x, y + 2, z); pole.castShadow = true; scene.add(pole); flags.push(pole);
-            const cloth = new THREE.Mesh(propGeos.box, new THREE.MeshStandardMaterial({ color: 0xff4757, roughness: 0.9 }));
-            cloth.scale.set(1.5, 1, 0.1); cloth.position.set(x + 0.85, y + 3.3, z); cloth.castShadow = true; scene.add(cloth); flags.push(cloth);
+            const baseMat = getCachedMaterial({ color: 0x222222, metalness: 0.9, roughness: 0.1, clearcoat: 0.8 });
+            const base = new THREE.Mesh(propGeos.cyl, baseMat);
+            base.scale.set(0.6, 0.2, 0.6); base.position.set(x, y + 0.1, z); base.castShadow = true; scene.add(base); flags.push(base);
+            
+            const poleMat = getCachedMaterial({ color: 0xe0e0e0, metalness: 1.0, roughness: 0.05, clearcoat: 1.0 });
+            const pole = new THREE.Mesh(propGeos.cyl, poleMat);
+            pole.scale.set(0.1, 5, 0.1); pole.position.set(x, y + 2.5, z); pole.castShadow = true; scene.add(pole); flags.push(pole);
+            
+            const clothMat = getCachedMaterial({ color: 0xff007c, emissive: 0xff007c, emissiveIntensity: 0.5, side: THREE.DoubleSide });
+            const cloth = new THREE.Mesh(propGeos.plane, clothMat);
+            cloth.scale.set(1.8, 1.2, 1); cloth.position.set(x + 0.9, y + 4.2, z); cloth.castShadow = true; scene.add(cloth); flags.push(cloth);
+        }
+
+        // --- SISTEMA POTENZIAMENTI OTTIMIZZATO SENZA LUCI ---
+        function createPowerUp(x, y, z, type) {
+            let geo, colorHex;
+            if (type === 'speed') { geo = propGeos.tetra; colorHex = 0xffff00; }
+            else if (type === 'jump') { geo = propGeos.cone; colorHex = 0xff00ff; }
+            else if (type === 'grav') { geo = propGeos.octa; colorHex = 0x00ffff; }
+            else if (type === 'shield') { geo = propGeos.sphere; colorHex = 0x3498db; }
+            else if (type === 'freeze') { geo = propGeos.box; colorHex = 0xecf0f1; }
+            else if (type === 'shrink') { geo = propGeos.dode; colorHex = 0x2ecc71; }
+
+            const mat = getCachedMaterial({ 
+                color: colorHex, emissive: colorHex, emissiveIntensity: 2.5, 
+                transparent: true, opacity: 1.0, metalness: 0.2, roughness: 0.1, clearcoat: 1.0 
+            });
+            
+            const mesh = new THREE.Mesh(geo, mat);
+            if(type === 'jump') mesh.scale.set(1.4, 2.4, 1.4);
+            else if(type === 'shield') mesh.scale.set(1.4, 1.4, 1.4);
+            else mesh.scale.set(1.6, 1.6, 1.6);
+            
+            // Alzati leggermente (Rimossa la PointLight che causava lo stuttering!)
+            mesh.position.set(x, y + 1.0, z);
+            mesh.castShadow = true;
+            
+            scene.add(mesh);
+            powerUps.push({ mesh, type, baseY: y + 1.0, timeOffset: Math.random() * 100, collected: false });
         }
 
         function getPointsOnPerimeter(centerX, centerZ, w, d, inset, numPoints) {
@@ -1167,27 +1310,26 @@
                 switch(biomeIdx) {
                     case 0:
                         if (isVariantA) {
-                            let pole = new THREE.Mesh(propGeos.cyl, new THREE.MeshStandardMaterial({color: 0x444444, metalness: 0.9})); pole.scale.set(0.1, 3, 0.1); pole.position.y = 1.5;
-                            let lampBase = new THREE.Mesh(propGeos.cyl, new THREE.MeshStandardMaterial({color: 0x222222})); lampBase.scale.set(0.4, 0.2, 0.4); lampBase.position.y = 0.1;
-                            let lamp = new THREE.Mesh(propGeos.sphere, new THREE.MeshStandardMaterial({color: 0x00d2d3, emissive: 0x00d2d3, emissiveIntensity: 1})); lamp.scale.set(0.4, 0.4, 0.4); lamp.position.y = 3.0;
+                            let pole = new THREE.Mesh(propGeos.cyl, getCachedMaterial({color: 0x444444, metalness: 0.9}, false)); pole.scale.set(0.1, 3, 0.1); pole.position.y = 1.5;
+                            let lampBase = new THREE.Mesh(propGeos.cyl, getCachedMaterial({color: 0x222222}, false)); lampBase.scale.set(0.4, 0.2, 0.4); lampBase.position.y = 0.1;
+                            let lamp = new THREE.Mesh(propGeos.sphere, getCachedMaterial({color: 0x00d2d3, emissive: 0x00d2d3, emissiveIntensity: 1}, false)); lamp.scale.set(0.4, 0.4, 0.4); lamp.position.y = 3.0;
                             decorGroup.add(lampBase, pole, lamp); 
                             decorGroup.userData.type = 'pulse_glow'; decorGroup.userData.target = lamp; animatedProps.push(decorGroup);
                         } else {
-                            let sBase = new THREE.Mesh(propGeos.box, new THREE.MeshStandardMaterial({color: 0x222, metalness: 0.8})); sBase.scale.set(1, 0.2, 1); sBase.position.y = 0.1;
-                            let holo = new THREE.Mesh(propGeos.plane, new THREE.MeshPhysicalMaterial({color: 0x0abde3, emissive: 0x0abde3, transparent: true, opacity: 0.6, side: THREE.DoubleSide})); holo.scale.set(1.5, 1.5, 1.5); holo.position.y = 1.5;
-                            decorGroup.add(sBase, holo);
-                            decorGroup.userData.type = 'spin'; animatedProps.push(decorGroup);
+                            let sBase = new THREE.Mesh(propGeos.box, getCachedMaterial({color: 0x222, metalness: 0.8}, false)); sBase.scale.set(1, 0.2, 1); sBase.position.y = 0.1;
+                            let holo = new THREE.Mesh(propGeos.plane, getCachedMaterial({color: 0x0abde3, emissive: 0x0abde3, transparent: true, opacity: 0.6, side: THREE.DoubleSide})); holo.scale.set(1.5, 1.5, 1.5); holo.position.y = 1.5;
+                            decorGroup.add(sBase, holo); decorGroup.userData.type = 'spin'; animatedProps.push(decorGroup);
                         } break;
                     case 1:
                         if (isVariantA) {
-                            let trunk = new THREE.Mesh(propGeos.cyl, new THREE.MeshStandardMaterial({color: 0x3e2723, roughness: 1})); trunk.scale.set(0.2, 1.5, 0.2); trunk.position.y = 0.75;
-                            let leavesMat = new THREE.MeshPhysicalMaterial({color: 0xe67e22, roughness: 0.8, transmission: 0.2});
+                            let trunk = new THREE.Mesh(propGeos.cyl, getCachedMaterial({color: 0x3e2723, roughness: 1}, false)); trunk.scale.set(0.2, 1.5, 0.2); trunk.position.y = 0.75;
+                            let leavesMat = getCachedMaterial({color: 0xe67e22, roughness: 0.8, transmission: 0.2});
                             let l1 = new THREE.Mesh(propGeos.cone, leavesMat); l1.scale.set(1.8, 2, 1.8); l1.position.y = 1.5;
                             let l2 = new THREE.Mesh(propGeos.cone, leavesMat); l2.scale.set(1.4, 1.8, 1.4); l2.position.y = 2.5;
                             let l3 = new THREE.Mesh(propGeos.cone, leavesMat); l3.scale.set(1.0, 1.5, 1.0); l3.position.y = 3.5;
                             decorGroup.add(trunk, l1, l2, l3); 
                         } else {
-                            let fMat = new THREE.MeshStandardMaterial({color: 0x8e44ad, roughness: 0.8});
+                            let fMat = getCachedMaterial({color: 0x8e44ad, roughness: 0.8}, false);
                             let b1 = new THREE.Mesh(propGeos.cyl, fMat); b1.scale.set(0.1, 1.5, 0.1); b1.position.set(-0.5, 0.75, 0);
                             let b2 = new THREE.Mesh(propGeos.cyl, fMat); b2.scale.set(0.1, 1.5, 0.1); b2.position.set(0.5, 0.75, 0);
                             let cross = new THREE.Mesh(propGeos.cyl, fMat); cross.scale.set(0.08, 1.2, 0.08); cross.position.set(0, 1.2, 0); cross.rotation.z = Math.PI/2;
@@ -1195,61 +1337,56 @@
                         } break;
                     case 2:
                         if (isVariantA) {
-                            let core = new THREE.Mesh(propGeos.dode, new THREE.MeshPhysicalMaterial({color: 0x9b59b6, emissive: 0x4b2976, transmission: 0.9, opacity: 1})); core.scale.set(0.8, 0.8, 0.8); core.position.y = 1.5;
-                            let ring1 = new THREE.Mesh(propGeos.torus, new THREE.MeshStandardMaterial({color: 0x0abde3, emissive: 0x0abde3})); ring1.scale.set(1.5, 1, 1.5); ring1.position.y = 1.5; ring1.rotation.set(Math.PI/2, 0.5, 0);
-                            let ring2 = new THREE.Mesh(propGeos.torus, new THREE.MeshStandardMaterial({color: 0xff007c, emissive: 0xff007c})); ring2.scale.set(2.0, 1, 2.0); ring2.position.y = 1.5; ring2.rotation.set(Math.PI/3, -0.5, 0);
-                            decorGroup.add(core, ring1, ring2); 
-                            decorGroup.userData.type = 'hover_spin'; animatedProps.push(decorGroup);
+                            let core = new THREE.Mesh(propGeos.dode, getCachedMaterial({color: 0x9b59b6, emissive: 0x4b2976, transmission: 0.9, opacity: 1})); core.scale.set(0.8, 0.8, 0.8); core.position.y = 1.5;
+                            let ring1 = new THREE.Mesh(propGeos.torus, getCachedMaterial({color: 0x0abde3, emissive: 0x0abde3}, false)); ring1.scale.set(1.5, 1, 1.5); ring1.position.y = 1.5; ring1.rotation.set(Math.PI/2, 0.5, 0);
+                            let ring2 = new THREE.Mesh(propGeos.torus, getCachedMaterial({color: 0xff007c, emissive: 0xff007c}, false)); ring2.scale.set(2.0, 1, 2.0); ring2.position.y = 1.5; ring2.rotation.set(Math.PI/3, -0.5, 0);
+                            decorGroup.add(core, ring1, ring2); decorGroup.userData.type = 'hover_spin'; animatedProps.push(decorGroup);
                         } else {
-                            let ring = new THREE.Mesh(propGeos.torus, new THREE.MeshPhysicalMaterial({color: 0x111, metalness: 1, roughness: 0.1})); ring.scale.set(0.8, 1, 0.8); ring.position.y = 1.5; ring.rotation.x = Math.random(); ring.rotation.y = Math.random();
-                            let orb = new THREE.Mesh(propGeos.sphere, new THREE.MeshBasicMaterial({color: 0xffffff})); orb.scale.set(0.3, 0.3, 0.3); orb.position.y = 1.5;
-                            decorGroup.add(ring, orb);
-                            decorGroup.userData.type = 'spin'; animatedProps.push(decorGroup);
+                            let ring = new THREE.Mesh(propGeos.torus, getCachedMaterial({color: 0x111, metalness: 1, roughness: 0.1})); ring.scale.set(0.8, 1, 0.8); ring.position.y = 1.5; ring.rotation.x = Math.random(); ring.rotation.y = Math.random();
+                            let orb = new THREE.Mesh(propGeos.sphere, getCachedMaterial({color: 0xffffff}, false)); orb.scale.set(0.3, 0.3, 0.3); orb.position.y = 1.5;
+                            decorGroup.add(ring, orb); decorGroup.userData.type = 'spin'; animatedProps.push(decorGroup);
                         } break;
                     case 3:
                         if (isVariantA) {
-                            let barrel = new THREE.Mesh(propGeos.cyl, new THREE.MeshStandardMaterial({color: 0x2d3436, metalness: 0.8})); barrel.scale.set(0.5, 1.4, 0.5); barrel.position.y = 0.7;
-                            let acidBase = new THREE.Mesh(propGeos.cyl, new THREE.MeshStandardMaterial({color: 0xbadc58, emissive: 0xbadc58, emissiveIntensity: 0.6})); acidBase.scale.set(0.48, 1.42, 0.48); acidBase.position.y = 0.7;
-                            let bubble = new THREE.Mesh(propGeos.sphere, new THREE.MeshStandardMaterial({color: 0xbadc58, emissive: 0xbadc58})); bubble.scale.set(0.2, 0.2, 0.2); bubble.position.set(0, 1.5, 0);
-                            decorGroup.add(barrel, acidBase, bubble); 
-                            decorGroup.userData.type = 'bubble'; decorGroup.userData.target = bubble; animatedProps.push(decorGroup);
+                            let barrel = new THREE.Mesh(propGeos.cyl, getCachedMaterial({color: 0x2d3436, metalness: 0.8}, false)); barrel.scale.set(0.5, 1.4, 0.5); barrel.position.y = 0.7;
+                            let acidBase = new THREE.Mesh(propGeos.cyl, getCachedMaterial({color: 0xbadc58, emissive: 0xbadc58, emissiveIntensity: 0.6}, false)); acidBase.scale.set(0.48, 1.42, 0.48); acidBase.position.y = 0.7;
+                            let bubble = new THREE.Mesh(propGeos.sphere, getCachedMaterial({color: 0xbadc58, emissive: 0xbadc58}, false)); bubble.scale.set(0.2, 0.2, 0.2); bubble.position.set(0, 1.5, 0);
+                            decorGroup.add(barrel, acidBase, bubble); decorGroup.userData.type = 'bubble'; decorGroup.userData.target = bubble; animatedProps.push(decorGroup);
                         } else {
-                            let mStalk = new THREE.Mesh(propGeos.cyl, new THREE.MeshStandardMaterial({color: 0x555})); mStalk.scale.set(0.2, 1, 0.2); mStalk.position.y = 0.5;
-                            let mCap = new THREE.Mesh(propGeos.sphere, new THREE.MeshStandardMaterial({color: 0xbadc58, emissive: 0x224411})); mCap.scale.set(0.8, 0.4, 0.8); mCap.position.y = 1;
+                            let mStalk = new THREE.Mesh(propGeos.cyl, getCachedMaterial({color: 0x555}, false)); mStalk.scale.set(0.2, 1, 0.2); mStalk.position.y = 0.5;
+                            let mCap = new THREE.Mesh(propGeos.sphere, getCachedMaterial({color: 0xbadc58, emissive: 0x224411}, false)); mCap.scale.set(0.8, 0.4, 0.8); mCap.position.y = 1;
                             decorGroup.add(mStalk, mCap);
                         } break;
                     case 4:
                         if (isVariantA) {
-                            let spike = new THREE.Mesh(propGeos.cone, new THREE.MeshPhysicalMaterial({color: 0x00a8ff, transmission: 0.9, transparent: true, opacity: 0.8, roughness: 0.1})); spike.scale.set(0.5, 2.5, 0.5); spike.position.y = 1.25; decorGroup.add(spike);
+                            let spike = new THREE.Mesh(propGeos.cone, getCachedMaterial({color: 0x00a8ff, transmission: 0.9, transparent: true, opacity: 0.8, roughness: 0.1})); spike.scale.set(0.5, 2.5, 0.5); spike.position.y = 1.25; decorGroup.add(spike);
                         } else {
-                            let iceMat = new THREE.MeshPhysicalMaterial({color: 0xffffff, transmission: 0.5, roughness: 0.2});
+                            let iceMat = getCachedMaterial({color: 0xffffff, transmission: 0.5, roughness: 0.2});
                             let b1 = new THREE.Mesh(propGeos.box, iceMat); b1.position.y = 0.5;
                             let b2 = new THREE.Mesh(propGeos.box, iceMat); b2.scale.set(0.8, 0.8, 0.8); b2.position.set(0.5, 1.4, 0); b2.rotation.z = 0.2;
                             decorGroup.add(b1, b2);
                         } break;
                     case 5:
                         if (isVariantA) {
-                            let rockMat = new THREE.MeshStandardMaterial({color: 0x111111, roughness: 0.9, flatShading: true});
+                            let rockMat = getCachedMaterial({color: 0x111111, roughness: 0.9, flatShading: true}, false);
                             let rock1 = new THREE.Mesh(propGeos.dode, rockMat); rock1.scale.set(1.0, 1.5, 1.0); rock1.position.y = 0.8;
                             let rock2 = new THREE.Mesh(propGeos.dode, rockMat); rock2.scale.set(0.6, 0.6, 0.6); rock2.position.set(0.8, 0.5, 0.5);
-                            let lavaVein = new THREE.Mesh(propGeos.dode, new THREE.MeshStandardMaterial({color: 0xff4757, emissive: 0xff4757, wireframe: true})); lavaVein.scale.set(0.98, 1.48, 0.98); lavaVein.position.y = 0.8; 
-                            decorGroup.add(rock1, rock2, lavaVein); 
-                            decorGroup.userData.type = 'pulse_glow'; decorGroup.userData.target = lavaVein; animatedProps.push(decorGroup);
+                            let lavaVein = new THREE.Mesh(propGeos.dode, getCachedMaterial({color: 0xff4757, emissive: 0xff4757, wireframe: true}, false)); lavaVein.scale.set(0.98, 1.48, 0.98); lavaVein.position.y = 0.8; 
+                            decorGroup.add(rock1, rock2, lavaVein); decorGroup.userData.type = 'pulse_glow'; decorGroup.userData.target = lavaVein; animatedProps.push(decorGroup);
                         } else {
-                            let chain = new THREE.Mesh(propGeos.torus, new THREE.MeshStandardMaterial({color: 0x333, metalness: 0.8})); chain.scale.set(0.4, 1, 0.4); chain.position.y = 1; chain.rotation.x = Math.PI/2;
+                            let chain = new THREE.Mesh(propGeos.torus, getCachedMaterial({color: 0x333, metalness: 0.8}, false)); chain.scale.set(0.4, 1, 0.4); chain.position.y = 1; chain.rotation.x = Math.PI/2;
                             let ember = new THREE.Mesh(propGeos.dode, new THREE.MeshBasicMaterial({color: 0xff793f})); ember.scale.set(0.3, 0.3, 0.3); ember.position.y = 2.5;
-                            decorGroup.add(chain, ember);
-                            decorGroup.userData.type = 'hover'; decorGroup.userData.target = ember; animatedProps.push(decorGroup);
+                            decorGroup.add(chain, ember); decorGroup.userData.type = 'hover'; decorGroup.userData.target = ember; animatedProps.push(decorGroup);
                         } break;
                     case 6:
                         if (isVariantA) {
-                            let gMat = new THREE.MeshStandardMaterial({color: 0xf1c40f, metalness: 0.6, roughness: 0.2});
+                            let gMat = getCachedMaterial({color: 0xf1c40f, metalness: 0.6, roughness: 0.2}, false);
                             let pBase = new THREE.Mesh(propGeos.box, gMat); pBase.scale.set(1.2, 0.3, 1.2); pBase.position.y = 0.15;
                             let pillar = new THREE.Mesh(propGeos.cyl, gMat); pillar.scale.set(0.4, 2.5, 0.4); pillar.position.y = 1.55;
                             let pTop = new THREE.Mesh(propGeos.box, gMat); pTop.scale.set(1.2, 0.3, 1.2); pTop.position.y = 2.95;
                             decorGroup.add(pBase, pillar, pTop); 
                         } else {
-                            let gMat2 = new THREE.MeshStandardMaterial({color: 0xf1c40f, metalness: 0.8, roughness: 0.1});
+                            let gMat2 = getCachedMaterial({color: 0xf1c40f, metalness: 0.8, roughness: 0.1}, false);
                             let vase = new THREE.Mesh(propGeos.sphere, gMat2); vase.scale.set(0.6, 0.9, 0.6); vase.position.y = 1;
                             let vNeck = new THREE.Mesh(propGeos.cyl, gMat2); vNeck.scale.set(0.4, 0.5, 0.4); vNeck.position.y = 2;
                             decorGroup.add(vase, vNeck);
@@ -1294,14 +1431,14 @@
             const bumpTex = globalGridBumpMap.clone(); bumpTex.repeat.set(w / 4, (shapeType === 'box' ? d/4 : w/4)); 
 
             let materialParams = { 
-                color: color, roughness: 0.1, metalness: 0.9, clearcoat: 1.0, clearcoatRoughness: 0.05, envMapIntensity: 2.5, bumpMap: bumpTex, bumpScale: 0.04 
+                color: color, roughness: 0.1, metalness: 0.9, clearcoat: 1.0, clearcoatRoughness: 0.02, envMapIntensity: 3.5, bumpMap: bumpTex, bumpScale: 0.04 
             };
             
             if (isSlime) {
-                materialParams = { color: 0xffa502, emissive: 0x884400, roughness: 0.05, metalness: 0.1, transmission: 0.9, opacity: 1, transparent: true, clearcoat: 1.0, envMapIntensity: 3.0 };
+                materialParams = { color: 0xffa502, emissive: 0x884400, roughness: 0.05, metalness: 0.1, transmission: 0.9, opacity: 1, transparent: true, clearcoat: 1.0, envMapIntensity: 4.0 };
                 body.isSlime = true; 
             } else if (isBouncy) {
-                materialParams.emissive = new THREE.Color(0x108030); materialParams.envMapIntensity = 3.0; 
+                materialParams.emissive = new THREE.Color(0x108030); materialParams.envMapIntensity = 4.0; 
             } else if (isVanishing) {
                 materialParams.color = new THREE.Color(0x9b59b6); materialParams.emissive = new THREE.Color(0x4b2976); 
                 materialParams.transparent = true; materialParams.opacity = 0.8; materialParams.roughness = 0.3;
@@ -1309,6 +1446,7 @@
                 materialParams.map = matTexture;
             }
             
+            // Usiamo materiali PBR creati al volo qui perché usano texture mappate per ogni w/h, non facili da cachare perfettamente
             const mesh = new THREE.Mesh(geo, new THREE.MeshPhysicalMaterial(materialParams));
             mesh.position.set(x, y, z); 
             if (shapeType === 'triangle') mesh.rotation.y = -Math.PI/6;
@@ -1318,7 +1456,7 @@
             let tLightBase = null; let lights = [];
             if (isVanishing) {
                 const tlGroup = new THREE.Group();
-                const tlBox = new THREE.Mesh(propGeos.box, new THREE.MeshStandardMaterial({color: 0x222})); 
+                const tlBox = new THREE.Mesh(propGeos.box, getCachedMaterial({color: 0x222}, false)); 
                 tlBox.scale.set(0.9, 2.7, 0.9); 
                 tlGroup.add(tlBox);
                 
@@ -1349,54 +1487,65 @@
 
             let currentY = 0, angle = 0, nextTargetHeightForCheckpoint = 110, currentBiomeGenIdx = 0;
             let currentX = 0, currentZ = 0;
-            let lastWasBouncy = false; let lastWasSmall = false; let nextYOffsetBonus = 0; 
+            let lastWasBouncy = false; let lastWasSmall = false; 
+            let lastW = 16, lastD = 16; 
 
             for (let i = 1; i <= 300; i++) {
                 let diffFactor = Math.min(1, i / 200); 
                 let stepY = (i === 1) ? 1.5 : (3.0 + Math.random() * 3.5 + (diffFactor * 1.0)); 
                 if (stepY > 7.0) stepY = 7.0; 
                 
-                let stepH = (i === 1) ? 12.0 : (6.0 + Math.random() * 4.0 + (diffFactor * 1.5));
-                if (stepH > 10.0 && i !== 1) stepH = 10.0;
-
                 let isCheckpoint = false;
                 if (currentY + stepY >= nextTargetHeightForCheckpoint && currentY + stepY < WIN_HEIGHT - 50) isCheckpoint = true;
 
-                if (isCheckpoint) { stepH = 10.0; stepY = 3.0; }
+                if (isCheckpoint) { stepY = 3.0; }
 
-                currentY += stepY + nextYOffsetBonus; nextYOffsetBonus = 0; 
+                currentY += stepY; 
                 angle += 0.3 + (Math.random() * 0.5); 
-                currentX += Math.cos(angle) * stepH; currentZ += Math.sin(angle) * stepH;
-
-                if (currentY >= WIN_HEIGHT) {
-                    createPlatform(currentX, WIN_HEIGHT, currentZ, 40, 0.5, 40, new THREE.Color(0xf1c40f), 6, false, null, false, 'round', false); 
-                    createFlag(currentX, WIN_HEIGHT + 0.25, currentZ); 
-                    break; 
-                }
 
                 let baseW = 10 - (diffFactor * 4);
                 let w = Math.max(4, Math.round(baseW + Math.random() * 3)); let d = Math.max(4, Math.round(baseW + Math.random() * 3));
                 let h = 0.5; let isSmallPlatform = false;
 
                 if (isCheckpoint) {
-                    currentBiomeGenIdx++; w = 35; d = 35; 
-                    currentX += Math.cos(angle) * 25; currentZ += Math.sin(angle) * 25;
+                    w = 35; d = 35; 
+                } else if (currentY >= WIN_HEIGHT) {
+                    w = 40; d = 40;
+                } else if (i > 20 && !lastWasSmall && Math.random() < 0.3 + (diffFactor * 0.6)) { 
+                    isSmallPlatform = true; w = Math.max(2.5, Math.round(2.5 + Math.random() * 2)); d = Math.max(2.5, Math.round(2.5 + Math.random() * 2)); 
+                }
+
+                let minGap = isCheckpoint ? 5.0 : (2.0 + Math.random() * 2.0); 
+                let minStepH = (Math.max(lastW, lastD) / 2) + (Math.max(w, d) / 2) + minGap;
+                let stepH = Math.max(minStepH, 6.0 + Math.random() * 4.0 + (diffFactor * 1.5));
+                
+                if (isCheckpoint) stepH = Math.max(minStepH, 15.0);
+
+                currentX += Math.cos(angle) * stepH; 
+                currentZ += Math.sin(angle) * stepH;
+                
+                lastW = w; lastD = d;
+
+                if (currentY >= WIN_HEIGHT) {
+                    createPlatform(currentX, WIN_HEIGHT, currentZ, w, h, d, new THREE.Color(0xf1c40f), 6, false, null, false, 'round', false); 
+                    createFlag(currentX, WIN_HEIGHT + 0.25, currentZ); 
+                    break; 
+                }
+
+                if (isCheckpoint) {
+                    currentBiomeGenIdx++; 
                     checkpoints.push(new CANNON.Vec3(currentX, currentY + 3, currentZ));
                     nextTargetHeightForCheckpoint += 110;
                     let bIdx = Math.min(currentBiomeGenIdx - 1, BIOMES.length - 1);
                     
-                    createPlatform(currentX, currentY, currentZ, w, h, d, new THREE.Color(0xf1c40f), bIdx, false, null, false, 'box', false);
+                    createPlatform(currentX, currentY, currentZ, w, h, d, new THREE.Color(0xf1c40f), bIdx, false, null, false, 'box', false, currentBiomeGenIdx);
                     createFlag(currentX, currentY + 0.25, currentZ);
 
-                    angle += Math.PI / 1.5; nextYOffsetBonus = 0; 
-                    currentX += Math.cos(angle) * 18; currentZ += Math.sin(angle) * 18;
+                    angle += Math.PI / 1.5; 
                     lastWasBouncy = false; lastWasSmall = false; 
                     continue; 
                 }
 
-                if (i > 20 && !lastWasSmall && Math.random() < 0.3 + (diffFactor * 0.6)) { 
-                    isSmallPlatform = true; w = Math.max(2.5, Math.round(2.5 + Math.random() * 2)); d = Math.max(2.5, Math.round(2.5 + Math.random() * 2)); 
-                }
                 lastWasSmall = isSmallPlatform; 
 
                 let isBouncy = (!isSmallPlatform && i > 5 && !lastWasBouncy && Math.random() < 0.25); lastWasBouncy = isBouncy; 
@@ -1424,9 +1573,13 @@
                 createPlatform(currentX, currentY, currentZ, w, h, d, color, activeGenBiomeIdx, isBouncy, moveData, isVanishing, shapeType, isSlime);
 
                 let hasObstacle = false;
+                let isDeadlyObstacle = false;
+                
+                // 1. Generiamo prima gli ostacoli
                 if (!isBouncy && !moveData && !isVanishing && !isSmallPlatform && !isSlime && shapeType === 'box' && i > 5 && Math.random() < 0.35 + (diffFactor * 0.2)) {
                     let behavior = Math.random() > 0.5 ? 'move' : 'spin'; let moveAxis = (Math.random() > 0.5) ? 'x' : 'z';
                     let isDeadly = Math.random() > 0.5;
+                    isDeadlyObstacle = isDeadly; // Salviamo questa informazione per i power-up
                     let obsW = isDeadly ? Math.round(w * 0.4) : Math.round(w * 0.6); if (obsW < 2) obsW = 2;
                     let obsH = isDeadly ? 1.5 : 3.0; let obsD = 3;
                     if (behavior === 'spin') { obsW = w * 0.8; obsD = 1; }
@@ -1436,6 +1589,14 @@
                     hasObstacle = true;
                 }
 
+                // 2. SPAWN DI TUTTI I TIPI DI POTENZIAMENTI (Escludiamo le piattaforme con ostacoli mortali rossi)
+                if (!isCheckpoint && !isSlime && !isBouncy && !isVanishing && !isSmallPlatform && !isDeadlyObstacle && Math.random() < 0.35) {
+                    const puTypes = ['speed', 'jump', 'grav', 'shield', 'freeze', 'shrink'];
+                    let randomType = puTypes[Math.floor(Math.random() * puTypes.length)];
+                    createPowerUp(currentX, currentY + 1.2, currentZ, randomType);
+                }
+
+                // 3. Generiamo le decorazioni
                 if (!isBouncy && !moveData && !isVanishing && !isSmallPlatform && !hasObstacle && shapeType === 'box' && Math.random() < 0.4) {
                     createBiomeDecorations(currentX, currentY, currentZ, w, d, activeGenBiomeIdx);
                 }
@@ -1452,7 +1613,7 @@
             const emissiveHex = isDeadly ? 0xff0000 : 0x000000;
             const emissiveInt = isDeadly ? 0.6 : 0;
 
-            const mesh = new THREE.Mesh(getPlatGeo(w, h, d, 'box'), new THREE.MeshPhysicalMaterial({ 
+            const mesh = new THREE.Mesh(getPlatGeo(w, h, d, 'box'), getCachedMaterial({ 
                 color: colorHex, emissive: emissiveHex, emissiveIntensity: emissiveInt, roughness: 0.1, metalness: 0.6, clearcoat: 0.8
             }));
             mesh.position.set(x, y, z); mesh.castShadow = true; mesh.receiveShadow = true; scene.add(mesh);
@@ -1465,7 +1626,7 @@
             
             document.getElementById('final-time').innerText = formatTime(gameElapsedTime);
             
-            const elsToHide = ['controls-panel', 'mobile-controls', 'speedrun-timer'];
+            const elsToHide = ['controls-panel', 'mobile-controls', 'speedrun-timer', 'powerup-ui'];
             elsToHide.forEach(id => { const el = document.getElementById(id); if(el) el.style.display = 'none'; });
             
             const cs = document.getElementById('credits-screen'); if(cs) cs.style.display = 'flex';
@@ -1478,6 +1639,20 @@
             triggerAICommentary('win');
         }
 
+        function resetPowerUps() {
+            activePowerUps = { speed: 0, jump: 0, grav: 0, shield: 0, freeze: 0, shrink: 0 };
+            ['speed', 'jump', 'grav', 'shield', 'freeze', 'shrink'].forEach(type => {
+                let el = document.getElementById('pu-ui-' + type);
+                if (el) el.style.display = 'none';
+            });
+            // Reset fisica pallina se ristretta
+            if (ballMesh) ballMesh.scale.set(1, 1, 1);
+            if (ballBody && ballBody.shapes.length > 0) {
+                ballBody.shapes[0].radius = BALL_RADIUS;
+                ballBody.updateBoundingRadius();
+            }
+        }
+
         function processDeath() {
             const spawnPos = (gameMode === 'normal') ? checkpoints[maxCheckpointReached] : checkpoints[0];
             let heightFellFrom = Math.floor(ballBody.position.y);
@@ -1487,6 +1662,7 @@
             wasTouchingGround = false; jumpBufferTime = 0; coyoteTime = 0;
             
             if (gameMode === 'hardcore') gameElapsedTime = 0; 
+            resetPowerUps(); 
 
             if(deathReason === 'block') {
                 showCheckpointMessage("Rientro al Checkpoint: Evita i blocchi rossi! ❌");
@@ -1754,6 +1930,8 @@
                 isGameRunning = true; isPaused = false; hasWon = false; 
                 lastTime = performance.now();
                 gameElapsedTime = 0; 
+                dynamicGameTime = 0;
+                resetPowerUps();
                 
                 activeCheckpointIndex = 0; maxCheckpointReached = 0; 
                 wasTouchingGround = true; jumpBufferTime = 0; coyoteTime = 0; pendingDeath = false;
@@ -1794,7 +1972,7 @@
             isGameRunning = false; isPaused = false; hasWon = false; 
             if(!isMobile && document.pointerLockElement) document.exitPointerLock(); 
             
-            const els = ['pause-screen', 'credits-screen', 'controls-panel', 'mobile-controls', 'speedrun-timer'];
+            const els = ['pause-screen', 'credits-screen', 'controls-panel', 'mobile-controls', 'speedrun-timer', 'powerup-ui'];
             els.forEach(id => { const el = document.getElementById(id); if(el) el.style.display = 'none'; });
             
             const startScreen = document.getElementById('start-screen');
@@ -1809,19 +1987,19 @@
             const quality = document.getElementById('graphics-quality').value;
             
             if (quality === 'high') {
-                renderer.toneMapping = THREE.ACESFilmicToneMapping;
+                renderer.toneMappingExposure = 1.6;
                 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
                 if (dirLight) { dirLight.shadow.mapSize.width = 2048; dirLight.shadow.mapSize.height = 2048; }
                 platforms.forEach(p => {
                     if(p.mesh.material.clearcoat !== undefined) {
                         p.mesh.material.clearcoat = 1.0;
-                        p.mesh.material.envMapIntensity = p.body.isBouncy ? 3.0 : 2.5;
+                        p.mesh.material.envMapIntensity = p.body.isBouncy ? 4.0 : 3.5;
                         p.mesh.material.needsUpdate = true;
                     }
                 });
                 particleMat.size = 2.5; particleMat.opacity = 0.9;
             } else {
-                renderer.toneMapping = THREE.NoToneMapping;
+                renderer.toneMappingExposure = 1.0;
                 renderer.shadowMap.type = THREE.PCFShadowMap;
                 if (dirLight) { dirLight.shadow.mapSize.width = 512; dirLight.shadow.mapSize.height = 512; }
                 platforms.forEach(p => {
@@ -1851,6 +2029,83 @@
             gameElapsedTime += dt * 1000;
             const timerEl = document.getElementById('speedrun-timer');
             if(timerEl) timerEl.innerText = formatTime(gameElapsedTime);
+
+            const time = performance.now() * 0.002;
+            
+            // Incrementa il tempo dinamico solo se il Ghiaccio NON è attivo
+            if (activePowerUps.freeze <= 0) {
+                dynamicGameTime += dt;
+            }
+
+            // --- GESTIONE TIMER E INTERFACCIA POWER-UPS ---
+            ['speed', 'jump', 'grav', 'shield', 'freeze', 'shrink'].forEach(type => {
+                if (activePowerUps[type] > 0) {
+                    activePowerUps[type] -= dt;
+                    let el = document.getElementById('pu-ui-' + type);
+                    if(el) {
+                        el.style.display = 'flex';
+                        if(activePowerUps[type] < 2.0) el.classList.add('pu-ending'); else el.classList.remove('pu-ending');
+                        document.getElementById('pu-bar-' + type).style.width = (activePowerUps[type] / PU_DURATION * 100) + '%';
+                    }
+                } else {
+                    let el = document.getElementById('pu-ui-' + type);
+                    if(el) { el.style.display = 'none'; el.classList.remove('pu-ending'); }
+                }
+            });
+
+            // Gestione effetto SHRINK (Rimpicciolire)
+            let targetScale = activePowerUps.shrink > 0 ? 0.5 : 1.0;
+            ballMesh.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
+            if (ballBody.shapes.length > 0) {
+                ballBody.shapes[0].radius = BALL_RADIUS * ballMesh.scale.x;
+                ballBody.updateBoundingRadius();
+            }
+
+            // Collision Detection Potenziamenti
+            powerUps.forEach(pu => {
+                if (pu.collected) return;
+                pu.mesh.rotation.y += 2 * dt;
+                pu.mesh.rotation.x += 1 * dt;
+                pu.mesh.position.y = pu.baseY + Math.sin(time * 5 + pu.timeOffset) * 0.4;
+
+                let dx = ballBody.position.x - pu.mesh.position.x;
+                let dy = ballBody.position.y - pu.mesh.position.y;
+                let dz = ballBody.position.z - pu.mesh.position.z;
+                
+                // Hitbox generosa e ingrandita
+                if (dx*dx + dy*dy + dz*dz < 8.0) { 
+                    pu.collected = true;
+                    pu.mesh.visible = false; 
+                    activePowerUps[pu.type] = PU_DURATION; 
+                    
+                    let msg = "";
+                    if(pu.type === 'speed') msg = "SUPER VELOCITÀ! ⚡";
+                    else if(pu.type === 'jump') msg = "SUPER SALTO! 🚀";
+                    else if(pu.type === 'grav') msg = "ANTI-GRAVITÀ! 🪶";
+                    else if(pu.type === 'shield') msg = "SCUDO PROTETTIVO! 🛡️";
+                    else if(pu.type === 'freeze') msg = "TEMPO CONGELATO! ❄️";
+                    else if(pu.type === 'shrink') msg = "PALLINA MINI! 🤏";
+                    
+                    showCheckpointMessage(msg);
+                }
+            });
+
+            let currentMoveForce = BASE_MOVE_FORCE;
+            let currentMaxSpeed = BASE_MAX_SPEED;
+            let currentJumpForce = BASE_JUMP_FORCE;
+            
+            if (activePowerUps.speed > 0) {
+                currentMoveForce *= 1.8;
+                currentMaxSpeed *= 1.8;
+            }
+            if (activePowerUps.jump > 0) {
+                currentJumpForce *= 1.5;
+            }
+            
+            let targetGravY = highGravity ? -35.0 : -15.0;
+            if (activePowerUps.grav > 0) targetGravY *= 0.4; 
+            
+            if (!flyMode) world.gravity.set(0, targetGravY, 0);
 
             const forward = new THREE.Vector3(); camera.getWorldDirection(forward); forward.y = 0; forward.normalize();
             const right = new THREE.Vector3(); right.crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
@@ -1899,6 +2154,7 @@
                     let otherBody = contact.bi === ballBody ? contact.bj : contact.bi;
                     if (ballBody.position.y > otherBody.position.y) isTouchingGround = true; 
                     if (otherBody.isSlime) touchingSlime = true;
+                    if (otherBody.checkpointIdx !== undefined && otherBody.checkpointIdx >= 0) touchedCheckpointIdx = otherBody.checkpointIdx;
                 } 
             }
 
@@ -1927,13 +2183,17 @@
             if (inputForce.length() > 0) {
                 if(inputForce.length() > 1) inputForce.normalize();
                 
-                let currentForce = isTouchingGround ? MOVE_FORCE : MOVE_FORCE * 0.8;
-                if (touchingSlime) currentForce *= 0.5; 
+                let actualForce = isTouchingGround ? currentMoveForce : currentMoveForce * 0.8;
+                if (touchingSlime) actualForce *= 0.5; 
                 
-                inputForce.multiplyScalar(currentForce);
+                inputForce.multiplyScalar(actualForce);
                 ballBody.applyForce(new CANNON.Vec3(inputForce.x, 0, inputForce.z), ballBody.position);
+                
                 let horSpeed = Math.sqrt(ballBody.velocity.x**2 + ballBody.velocity.z**2);
-                if(horSpeed > MAX_SPEED) { let ratio = MAX_SPEED / horSpeed; ballBody.velocity.x *= ratio; ballBody.velocity.z *= ratio; }
+                if(horSpeed > currentMaxSpeed) { 
+                    let ratio = currentMaxSpeed / horSpeed; 
+                    ballBody.velocity.x *= ratio; ballBody.velocity.z *= ratio; 
+                }
             } else {
                 let friction = isTouchingGround ? 0.90 : 0.99;
                 if (touchingSlime && isTouchingGround) friction = 0.98; 
@@ -1946,11 +2206,11 @@
                 ballBody.angularVelocity.x = ballBody.velocity.z * 0.8; ballBody.angularVelocity.z = -ballBody.velocity.x * 0.8;
             }
 
-            if (touchingSlime) { coyoteTime = 0; } else if (isTouchingGround) { coyoteTime = COYOTE_TIME_MAX; } else { coyoteTime -= dt; }
+            if (isTouchingGround) { coyoteTime = COYOTE_TIME_MAX; } else { coyoteTime -= dt; }
             if (keys.space) { jumpBufferTime = JUMP_BUFFER_MAX; keys.space = false; } else jumpBufferTime -= dt;
 
             if (jumpBufferTime > 0 && coyoteTime > 0 && (performance.now() - lastJumpTime > 250)) {
-                ballBody.velocity.y = JUMP_FORCE; lastJumpTime = performance.now();
+                ballBody.velocity.y = currentJumpForce; lastJumpTime = performance.now();
                 jumpBufferTime = 0; coyoteTime = 0; wasTouchingGround = false; isTouchingGround = false; 
             }
 
@@ -1975,25 +2235,27 @@
                 if (window.skySphereMesh) window.skySphereMesh.material.color.copy(currentBgColor);
             }
 
-            const time = performance.now() * 0.002;
+            // GESTIONE DEL TEMPO PER GLI OSTACOLI (Si fermano se Freeze è attivo)
             movingObstacles.forEach(obs => {
                 if (obs.type === 'move') {
-                    const offset = Math.sin(time + obs.timeOffset) * obs.range; 
+                    const offset = Math.sin(dynamicGameTime + obs.timeOffset) * obs.range; 
                     if (obs.axis === 'x') obs.body.position.x = obs.baseX + offset; else obs.body.position.z = obs.baseZ + offset;
                 } else if (obs.type === 'spin') {
-                    obs.body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), time * 1.5 + obs.timeOffset);
+                    obs.body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), dynamicGameTime * 1.5 + obs.timeOffset);
                 }
                 obs.mesh.position.copy(obs.body.position); obs.mesh.quaternion.copy(obs.body.quaternion);
             });
 
             movingPlatforms.forEach(plat => {
-                const offset = Math.sin(time * plat.speed + plat.timeOffset) * plat.range;
+                const offset = Math.sin(dynamicGameTime * plat.speed + plat.timeOffset) * plat.range;
                 if (plat.axis === 'x') plat.body.position.x = plat.baseX + offset; else plat.body.position.z = plat.baseZ + offset;
                 plat.mesh.position.copy(plat.body.position);
             });
 
             vanishingPlatforms.forEach(plat => {
-                plat.timer += dt;
+                if (activePowerUps.freeze <= 0) {
+                    plat.timer += dt;
+                }
                 
                 if (plat.timer >= plat.cycleTime) {
                     plat.timer = 0; plat.isVisible = !plat.isVisible;
@@ -2026,19 +2288,19 @@
                 }
             });
 
-            // Animazioni dei prop decorativi
             animatedProps.forEach(group => {
+                let localTime = activePowerUps.freeze > 0 ? time : dynamicGameTime; // props ruotano comunque un po'
                 if (group.userData.type === 'spin') {
-                    group.rotation.y += 0.02;
+                    group.rotation.y += 0.02 * (activePowerUps.freeze > 0 ? 0 : 1);
                 } else if (group.userData.type === 'hover_spin') {
                     group.rotation.y -= 0.01;
-                    group.position.y += Math.sin(time*2) * 0.01;
+                    group.position.y += Math.sin(localTime*2) * 0.01;
                 } else if (group.userData.type === 'hover') {
-                    if(group.userData.target) group.userData.target.position.y += Math.sin(time*3) * 0.02;
+                    if(group.userData.target) group.userData.target.position.y += Math.sin(localTime*3) * 0.02;
                 } else if (group.userData.type === 'pulse_glow') {
                     if(group.userData.target) group.userData.target.material.emissiveIntensity = 1 + Math.sin(time*5) * 0.5;
                 } else if (group.userData.type === 'bubble') {
-                    if(group.userData.target) {
+                    if(group.userData.target && activePowerUps.freeze <= 0) {
                         group.userData.target.position.y += dt;
                         if(group.userData.target.position.y > 3) group.userData.target.position.y = 1.5;
                     }
